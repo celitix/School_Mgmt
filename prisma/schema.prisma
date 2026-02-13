@@ -6,3 +6,155 @@ generator client {
 datasource db {
   provider = "mysql"
 }
+
+model Users {
+  id      String  @id @default(uuid())
+  name    String
+  roleId  Int     @map("role_id")
+  email   String?
+  phone   String  @unique
+  address String
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  //relations
+  role     Role      @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  students Student[]
+
+  @@index([phone])
+  @@map("users")
+}
+
+model Role {
+  id    Int     @id @default(autoincrement())
+  name  String
+  users Users[]
+
+  @@index([name])
+  @@map("roles")
+}
+
+model AcademicYear {
+  id        String    @id @default(uuid())
+  fromYear  String    @map("from_year")
+  toYear    String    @map("to_year")
+  createdAt DateTime  @default(now()) @map("created_at")
+  students  Student[]
+
+  @@map("academic_years")
+}
+
+model Student {
+  id          String  @id @default(uuid())
+  userId      String  @map("user_id")
+  age         Int
+  dob         String
+  gender      String
+  bloodGroup  String? @map("blood_group")
+  admissionNo String  @map("admission_no")
+  rollNo      Int     @map("roll_no")
+
+  sectionId      String        @map("section_id")
+  academicYearId String        @map("academic_year_id")
+  admissionDate  DateTime
+  photo          String?
+  status         StudentStatus @default(ACTIVE)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt
+
+  // relations
+  user            Users             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  academicYear    AcademicYear      @relation(fields: [academicYearId], references: [id], onDelete: Cascade)
+  section         Section           @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  studentGurdians StudentGurdians[]
+
+  @@unique([userId, admissionNo, rollNo], name: "student_unique")
+  @@index([userId, admissionNo, rollNo])
+  @@map("students")
+}
+
+model Class {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  //relations
+  sections Section[]
+
+  @@index([name])
+  @@map("classes")
+}
+
+model Section {
+  id           String    @id @default(uuid())
+  name         String
+  classId      String    @map("class_id")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  supervisorId String    @unique @map("supervisor_id")
+  //relations
+  students     Student[]
+  class        Class     @relation(fields: [classId], references: [id], onDelete: Cascade)
+  teacher      Teachers  @relation(fields: [supervisorId], references: [id], onDelete: Cascade)
+
+  // @@unique([id, teacherId], name: "section_unique")
+  @@unique([classId, name], name: "section_unique_2")
+  @@index([supervisorId])
+  @@map("sections")
+}
+
+model Teachers {
+  id            String   @id @default(uuid())
+  userId        String   @map("user_id")
+  enrollmentNo  String   @map("enrollment_no")
+  qualification String
+  exoperience   String
+  joiningDate   DateTime
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  //relations
+  sections Section[]
+
+  @@unique([userId, enrollmentNo], name: "teacher_unique")
+  @@index([userId, enrollmentNo])
+  @@map("teachers")
+}
+
+model Gurdians {
+  id         String   @id @default(uuid())
+  occupation String
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  //relations
+  studentGurdians StudentGurdians[]
+
+  @@map("gurdians")
+}
+
+model StudentGurdians {
+  id        String @id @default(uuid())
+  studentId String @map("student_id")
+  gurdianId String @map("gurdian_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  //relations
+  student Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  gurdian Gurdians @relation(fields: [gurdianId], references: [id])
+
+  @@unique([studentId, gurdianId], name: "student_gurdian_unique")
+  @@index([studentId, gurdianId])
+  @@map("student_gurdians")
+}
+
+enum StudentStatus {
+  ACTIVE
+  GRADUATE
+  LEFT
+}
