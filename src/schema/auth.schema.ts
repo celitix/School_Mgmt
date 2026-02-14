@@ -1,13 +1,13 @@
 import { z } from "zod";
 
-const sendOtp = z.object({
+const sendOtpBody = z.object({
   phone: z
     .string()
     .trim()
     .regex(/^[6-9]\d{9}$/, "Enter valid 10 digit mobile number"),
 });
 
-const verifyOtp = z.object({
+const verifyOtpBody = z.object({
   otp: z
     .string()
     .trim()
@@ -22,4 +22,4 @@ const verifyOtp = z.object({
     .regex(/^[6-9]\d{9}$/, "Enter valid 10 digit mobile number"),
 });
 
-export { sendOtp, verifyOtp };
+export { sendOtpBody, verifyOtpBody };

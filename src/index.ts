@@ -4,6 +4,7 @@ import morgan from "morgan";
 import "dotenv/config";
 import type { Request, Response, NextFunction } from "express";
 // import authRoutes from "./routes/auth.router";
+import OtpRoutes from "./router/auth.route";
 
 const app = express();
 
@@ -11,11 +12,10 @@ app.use(morgan("dev"));
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// app.use("/api/auth", authRoutes);
-
 app.get("/", (req, res) => {
   return res.status(200).json({ message: "Welcome" });
 });
+app.use("/api/auth", OtpRoutes);
 
 app.use((res, req, next) => {
   const error: any = new Error("Route not found.");
