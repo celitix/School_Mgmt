@@ -58,7 +58,7 @@ export const verifyOtp = async (req: Request, res: Response) => {
     });
 
     if (!isPhoneExist) {
-      throw new AppError(400, "Phone number does not exist");
+      throw new AppError(404, "Otp not found");
     }
 
     const compareOtp = compareValue(otp, isPhoneExist.otp);

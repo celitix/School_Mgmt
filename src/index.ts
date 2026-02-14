@@ -3,8 +3,10 @@ import bodyParser from "body-parser";
 import morgan from "morgan";
 import "dotenv/config";
 import type { Request, Response, NextFunction } from "express";
+import swaggerUI from "swagger-ui-express";
 // import authRoutes from "./routes/auth.router";
 import OtpRoutes from "./router/auth.route";
+import { swaggerSpec } from "./lib/swagger";
 
 const app = express();
 
@@ -16,6 +18,8 @@ app.get("/", (req, res) => {
   return res.status(200).json({ message: "Welcome" });
 });
 app.use("/api/auth", OtpRoutes);
+
+app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerSpec));
 
 app.use((res, req, next) => {
   const error: any = new Error("Route not found.");
