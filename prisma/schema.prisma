@@ -153,6 +153,18 @@ model StudentGurdians {
   @@map("student_gurdians")
 }
 
+model Otp {
+  id        String   @id @default(uuid())
+  phone     String
+  otp       String
+  attempts  Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  expiresAt DateTime
+
+  @@map("otps")
+}
+
 enum StudentStatus {
   ACTIVE
   GRADUATE
