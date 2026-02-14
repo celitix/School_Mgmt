@@ -13,9 +13,11 @@ export const globalResponse = (
   });
 };
 
-export const globalExceptionHandler = (status: number, message: string) => {
-  const error: any = new Error();
-  error.status = status;
-  error.message = message;
-  throw error;
-};
+export class AppError extends Error {
+  status: number;
+
+  constructor(status: number, message: string) {
+    super(message);
+    this.status = status;
+  }
+}
