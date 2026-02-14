@@ -15,9 +15,10 @@ export const globalResponse = (
 
 export class AppError extends Error {
   status: number;
-
-  constructor(status: number, message: string) {
+  success: boolean;
+  constructor(status: number, message: string, success?: boolean) {
     super(message);
     this.status = status;
+    this.success = false;
   }
 }
