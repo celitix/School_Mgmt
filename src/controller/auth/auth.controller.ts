@@ -4,14 +4,44 @@ import { prisma } from "../../lib/prisma";
 import {
   compareValue,
   generateAccessToken,
+  generateCode,
+  hashValue,
   isOtpExpired,
+  otpExpiry,
 } from "../../helper/authUtils";
 
-export const sendOtp = (req: Request, res: Response) => {
+export const sendOtp = async (req: Request, res: Response) => {
   try {
+    const { phone } = req.body;
+
+    const isUserExist = await prisma.users.findUnique({ where: { phone } });
+
+    if (!isUserExist) {
+      throw new AppError(400, "Invalid phone number");
+    }
+
+    let generateOtp = generateCode(6, "number");
+    const app_env = process.env.APP_ENV;
+
+    if (app_env === "development") {
+      generateOtp = "123456";
+    }
+
+    if (!generateOtp) {
+      throw new AppError(500, "Failed to generate OTP");
+    }
+
+    const otp = await prisma.otp.create({
+      data: {
+        phone,
+        otp: await hashValue(generateOtp),
+        expiresAt: otpExpiry(),
+      },
+    });
+
     globalResponse(
       200,
-      { message: "OTP send successfully", success: true },
+      { message: "OTP send successfully", success: true, otpId: otp.id },
       res,
     );
   } catch (e: any) {
