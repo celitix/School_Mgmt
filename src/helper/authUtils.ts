@@ -34,10 +34,10 @@ export const compareValue = async (code: string, encryptedCode: string) => {
 };
 
 export const generateAccessToken = (
-  id: string,
+  data: { id: string; role: string },
   expiresIn: SignOptions["expiresIn"] = "1d",
 ) => {
-  const token = jwt.sign({ id }, process.env.JWT_SECRET as string, {
+  const token = jwt.sign(data, process.env.JWT_SECRET as string, {
     expiresIn,
   });
   return token;
