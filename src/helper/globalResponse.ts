@@ -2,11 +2,11 @@ import { Response } from "express";
 
 export const globalResponse = (
   status: number,
-  data: any,
+  data: { message: string; success: boolean },
   res: Response,
 ) => {
   return res.status(status).json({
-    data,
+    ...data,
   });
 };
 
