@@ -79,5 +79,20 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
+  },
+  "pnpm": {
+    "overrides": {
+      "lodash": "^4.17.23",
+      "hono": "^4.11.7",
+      "fast-xml-parser": "^5.3.4"
+    },
+    "onlyBuiltDependencies": [
+      "@nestjs/core",
+      "@prisma/engines",
+      "@scarf/scarf",
+      "bcrypt",
+      "prisma",
+      "unrs-resolver"
+    ]
   }
 }
