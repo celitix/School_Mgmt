@@ -131,8 +131,51 @@ export class StudentController {
   //   return this.studentService.update(+id, updateStudentDto);
   // }
 
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.studentService.remove(+id);
-  // }
+  @Delete(':id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Delete Single Students' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Delete fetched successfully',
+  })
+  async remove(@Param('id') id: string) {
+    const isStudentExist = await this.studentService.isStudentExistById(id);
+
+    if (!isStudentExist) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'User not found.',
+          },
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const isDeleted = await this.studentService.remove(isStudentExist.userId);
+
+    if (!isDeleted) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'User not found.',
+          },
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return {
+      isSuccess: true,
+      data: {
+        isDeleted,
+        message: 'Student deleted successfully',
+      },
+      error: null,
+    };
+  }
 }
