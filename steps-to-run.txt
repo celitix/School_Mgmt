@@ -14,3 +14,6 @@ PORT = 3566
   @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(UserRoles.SUPERADMIN)
+
+
+  nest g resource blogs
