@@ -26,8 +26,9 @@ model Users {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   //relations
-  role     Role      @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  role     Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
   students Student[]
+  gurdians Gurdians[]
 
   @@index([phone])
   @@map("users")
@@ -72,10 +73,10 @@ model Student {
   updatedAt DateTime @updatedAt
 
   // relations
-  user            Users             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  academicYear    AcademicYear      @relation(fields: [academicYearId], references: [id], onDelete: Cascade)
-  section         Section           @relation(fields: [sectionId], references: [id], onDelete: Cascade)
-  studentGurdians StudentGurdians[]
+  user         Users             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  academicYear AcademicYear      @relation(fields: [academicYearId], references: [id], onDelete: Cascade)
+  section      Section           @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  gurdians     StudentGurdians[]
 
   @@unique([userId, admissionNo, rollNo], name: "student_unique")
   @@index([userId, admissionNo, rollNo])
@@ -134,8 +135,11 @@ model Teachers {
 model Gurdians {
   id         String   @id @default(uuid())
   occupation String
+  userId     String   @map("user_id")
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")
+
+  user Users @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   //relations
   studentGurdians StudentGurdians[]

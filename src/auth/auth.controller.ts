@@ -216,6 +216,7 @@ export class AuthController {
       UserRoles.TEACHER,
       UserRoles.ACCOUNTANT,
       UserRoles.CLERK,
+      UserRoles.PARENT,
     ];
 
     return this.authService.seedRoles(data);

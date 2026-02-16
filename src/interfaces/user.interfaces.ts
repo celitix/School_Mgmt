@@ -12,4 +12,5 @@ export enum UserRoles {
   TEACHER = 'TEACHER',
   ACCOUNTANT = 'ACCOUNTANT',
   CLERK = 'CLERK',
+  PARENT = 'PARENT',
 }

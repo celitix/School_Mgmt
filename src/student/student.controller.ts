@@ -25,6 +25,7 @@ import { AuthGuard } from 'src/guards/auth.guard';
 import { RolesGuard } from 'src/guards/roles.guard';
 import { UserRoles } from 'src/interfaces/user.interfaces';
 import { Roles } from 'src/decorators/auth.decorator';
+import { CreateStudentGurdianDto } from './dto/create-gurdian.dto';
 
 @Controller('student')
 @ApiBearerAuth('access-token')
@@ -172,8 +173,39 @@ export class StudentController {
     return {
       isSuccess: true,
       data: {
-        isDeleted,
         message: 'Student deleted successfully',
+      },
+      error: null,
+    };
+  }
+
+  @Post('/gurdian')
+  @Roles(UserRoles.SUPERADMIN, UserRoles.ADMIN, UserRoles.CLERK)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Create Student Gurdians (For Admin , Clerk Only)' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Student Gurdians Created successfully',
+  })
+  async createGuardian(@Body() data: CreateStudentGurdianDto) {
+    const isCreate = await this.studentService.createGurdian(data);
+
+    if (!isCreate) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'User not found.',
+          },
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    return {
+      isSuccess: true,
+      data: {
+        message: 'Student Gurdians Created successfully',
       },
       error: null,
     };

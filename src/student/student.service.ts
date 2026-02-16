@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { CreateStudentGurdianDto } from './dto/create-gurdian.dto';
 
 @Injectable()
 export class StudentService {
@@ -37,6 +38,17 @@ export class StudentService {
       where: { id },
       include: {
         user: true,
+        gurdians: {
+          select: {
+            gurdian: {
+              select: {
+                id: true,
+                occupation: true,
+                user: true,
+              },
+            },
+          },
+        },
       },
     });
   }
@@ -48,6 +60,17 @@ export class StudentService {
       this.prisma.student.findMany({
         include: {
           user: true,
+          gurdians: {
+            select: {
+              gurdian: {
+                select: {
+                  id: true,
+                  occupation: true,
+                  user: true,
+                },
+              },
+            },
+          },
         },
         skip,
         take: limit,
@@ -78,6 +101,17 @@ export class StudentService {
       },
       include: {
         user: true,
+        gurdians: {
+          select: {
+            gurdian: {
+              select: {
+                id: true,
+                occupation: true,
+                user: true,
+              },
+            },
+          },
+        },
       },
     });
   }
@@ -93,5 +127,33 @@ export class StudentService {
 
   async remove(id: string) {
     return await this.prisma.users.delete({ where: { id } });
+  }
+
+  async createGurdian(data: CreateStudentGurdianDto) {
+    const { name, phone, address, email, ...rest } = data;
+    return await this.prisma.$transaction(async (tx) => {
+      const user = await tx.users.create({
+        data: {
+          name,
+          phone,
+          address,
+          email,
+          roleId: 4,
+        },
+      });
+
+      const gurdians = await tx.gurdians.create({
+        data: {
+          occupation: rest.occupation,
+          userId: user.id,
+        },
+      });
+      return await tx.studentGurdians.create({
+        data: {
+          studentId: rest.studentId,
+          gurdianId: gurdians.id,
+        },
+      });
+    });
   }
 }
