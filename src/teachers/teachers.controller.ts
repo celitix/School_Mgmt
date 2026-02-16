@@ -118,6 +118,13 @@ export class TeachersController {
   }
 
   @Delete(':id')
+  @Roles(UserRoles.SUPERADMIN, UserRoles.ADMIN, UserRoles.CLERK)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Delete Single Teacher' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Teacher fetched successfully',
+  })
   async remove(@Param('id') id: string) {
     const isTeacherExist = await this.teachersService.isTeacherExistById(id);
     if (!isTeacherExist) {

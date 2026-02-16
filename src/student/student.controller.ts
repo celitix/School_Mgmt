@@ -137,8 +137,9 @@ export class StudentController {
   @ApiOperation({ summary: 'Delete Single Students' })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Delete fetched successfully',
+    description: 'Students fetched successfully',
   })
+  @Roles(UserRoles.SUPERADMIN, UserRoles.ADMIN, UserRoles.CLERK)
   async remove(@Param('id') id: string) {
     const isStudentExist = await this.studentService.isStudentExistById(id);
 
