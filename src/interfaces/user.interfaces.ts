@@ -4,3 +4,12 @@ export interface IUserTokenInfo {
   iat: number;
   exp: number;
 }
+
+export enum UserRoles {
+  ADMIN = 'ADMIN',
+  SUPERADMIN = 'SUPER_ADMIN',
+  STUDENT = 'STUDENT',
+  TEACHER = 'TEACHER',
+  ACCOUNTANT = 'ACCOUNTANT',
+  CLERK = 'CLERK',
+}

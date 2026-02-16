@@ -31,6 +31,9 @@ import { Verify } from 'crypto';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { UserInfo } from 'src/decorators/user.decorator';
 import type { IUserTokenInfo } from 'src/interfaces/user.interfaces';
+import { UserRoles } from '../interfaces/user.interfaces';
+import { Roles } from 'src/decorators/auth.decorator';
+import { RolesGuard } from 'src/guards/roles.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -199,16 +202,13 @@ export class AuthController {
   }
 
   @Get('/seedUser')
-  @ApiBearerAuth('access-token')
-  @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.OK)
-  //   @Roles(UserRoles.MENTOR)
   @ApiOperation({ summary: 'Seed Super Admin' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Seed Super Admin',
   })
-  async seedUser(@UserInfo() user: IUserTokenInfo) {
+  async seedUser() {
     const data = {
       name: 'Arihant Jain',
       phone: '9672670732',

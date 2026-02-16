@@ -17,7 +17,6 @@ export class RolesGuard implements CanActivate {
       context.getHandler(),
       context.getClass(),
     ]);
-
     const request = context.switchToHttp().getRequest();
 
     const user = request.user;
@@ -30,7 +29,10 @@ export class RolesGuard implements CanActivate {
       throw new ForbiddenException('Invalid user information');
     }
 
-    const userRoles = requiredRoles.some((role) => user.role.includes(role));
+    const userRoleNames = user.role.map((r) => r.name);
+    const userRoles = requiredRoles.some((role) =>
+      userRoleNames.includes(role),
+    );
 
     if (!userRoles) {
       throw new ForbiddenException(
