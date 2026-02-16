@@ -39,7 +39,7 @@ export class TeachersService {
       },
     });
   }
-  async findAll(page = 1, limit = 10) {
+  async findAll(page: number, limit: number) {
     const skip = (page - 1) * limit;
     const [teachers, total] = await Promise.all([
       this.prisma.teachers.findMany({

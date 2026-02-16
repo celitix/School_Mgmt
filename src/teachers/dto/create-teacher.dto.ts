@@ -54,7 +54,7 @@ export class CreateTeacherDto {
   exoperience: string;
 
   @ApiProperty({
-    example: '2026-02-16',
+    example: '2024-04-01T00:00:00.000Z',
     description: 'Joining date in ISO format (YYYY-MM-DD)',
   })
   @IsDateString()
