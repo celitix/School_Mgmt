@@ -1,0 +1,10 @@
+
+DATABASE_URL="mysql://root:arihant@localhost:3306/schl_mgmt"
+
+DATABASE_USER="root"
+DATABASE_PASSWORD="arihant"
+DATABASE_NAME="schl_mgmt"
+DATABASE_HOST="localhost"
+DATABASE_PORT=3306
+
+PORT = 3566
