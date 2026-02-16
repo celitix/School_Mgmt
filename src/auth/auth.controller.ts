@@ -9,6 +9,7 @@ import {
   HttpException,
   HttpStatus,
   HttpCode,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SendOtpDto, VerifyOtpDto } from './dto/auth.dto';
@@ -20,13 +21,19 @@ import {
   hashValue,
   isOtpExpired,
 } from 'helpers/authUtils';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Verify } from 'crypto';
+import { AuthGuard } from 'src/guards/auth.guard';
+import { UserInfo } from 'src/decorators/user.decorator';
+import type { IUserTokenInfo } from 'src/interfaces/user.interfaces';
 
 @ApiTags('Auth')
 @Controller('auth')
-// @ApiBearerAuth('access-token')
-// @UseGuards(AuthGuard)
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
@@ -176,7 +183,7 @@ export class AuthController {
     const user = await this.authService.findUser(data.phone);
 
     const token = generateAccessToken(
-      { id: isOtpExist.id, role: user?.role?.name! },
+      { id: user?.id!, role: user?.role?.name! },
       this.config.get('jwt.expiresIn') as number,
       this.config.get('jwt.secret') as string,
     );
@@ -192,6 +199,8 @@ export class AuthController {
   }
 
   @Get('/seedUser')
+  @ApiBearerAuth('access-token')
+  @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.OK)
   //   @Roles(UserRoles.MENTOR)
   @ApiOperation({ summary: 'Seed Super Admin' })
@@ -199,7 +208,7 @@ export class AuthController {
     status: HttpStatus.OK,
     description: 'Seed Super Admin',
   })
-  async seedUser() {
+  async seedUser(@UserInfo() user: IUserTokenInfo) {
     const data = {
       name: 'Arihant Jain',
       phone: '9672670732',
@@ -207,6 +216,22 @@ export class AuthController {
       address: 'Jaipur',
       roleId: 1,
     };
+
+    const isPhoneExist = await this.authService.isPhoneExist('9672670732');
+
+    if (isPhoneExist) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'User found in db.',
+          },
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
     return this.authService.createUser(data);
   }
 

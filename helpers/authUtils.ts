@@ -4,6 +4,7 @@ import crypto from 'crypto';
 
 interface JwtPayload {
   id: string;
+  role: string;
   iat: number;
   exp: number;
 }
@@ -51,11 +52,8 @@ export const extractTokenFromHeader = (authHeader?: string) => {
   return authHeader.split(' ')[1];
 };
 
-export const verifyToken = (token: string) => {
-  const decoded = jwt.verify(
-    token,
-    process.env.JWT_SECRET as string,
-  ) as JwtPayload;
+export const verifyToken = (token: string, secret: string) => {
+  const decoded = jwt.verify(token, secret) as JwtPayload;
   return decoded;
 };
 
