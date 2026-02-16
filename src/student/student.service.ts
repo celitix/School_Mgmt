@@ -22,8 +22,6 @@ export class StudentService {
       return await tx.student.create({
         data: {
           ...rest,
-          sectionId: '',
-          academicYearId: '',
           userId: user.id,
         },
       });
@@ -34,12 +32,34 @@ export class StudentService {
     return await this.prisma.users.findUnique({ where: { phone } });
   }
 
-  async findAll() {
-    return await this.prisma.student.findMany({
-      include: {
-        user: true,
+  async findAll(page = 1, limit = 10) {
+    const skip = (page - 1) * limit;
+
+    const [students, total] = await Promise.all([
+      this.prisma.student.findMany({
+        include: {
+          user: true,
+        },
+        skip,
+        take: limit,
+        orderBy: {
+          createdAt: 'desc', // optional but recommended
+        },
+      }),
+      this.prisma.student.count(),
+    ]);
+
+    return {
+      data: students,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+        hasNextPage: page * limit < total,
+        hasPreviousPage: page > 1,
       },
-    });
+    };
   }
 
   async findOne(id: string) {

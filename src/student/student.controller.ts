@@ -6,24 +6,92 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
+  HttpStatus,
+  HttpCode,
+  HttpException,
+  Query,
 } from '@nestjs/common';
 import { StudentService } from './student.service';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+} from '@nestjs/swagger';
+import { AuthGuard } from 'src/guards/auth.guard';
+import { RolesGuard } from 'src/guards/roles.guard';
+import { UserRoles } from 'src/interfaces/user.interfaces';
+import { Roles } from 'src/decorators/auth.decorator';
 
 @Controller('student')
+@ApiBearerAuth('access-token')
+@UseGuards(AuthGuard, RolesGuard)
+@Roles(
+  UserRoles.SUPERADMIN,
+  UserRoles.ADMIN,
+  UserRoles.CLERK,
+  UserRoles.STUDENT,
+)
 export class StudentController {
   constructor(private readonly studentService: StudentService) {}
 
-  // @Post()
-  // create(@Body() createStudentDto: CreateStudentDto) {
-  //   return this.studentService.create(createStudentDto);
-  // }
+  @Post()
+  @Roles(UserRoles.SUPERADMIN, UserRoles.ADMIN, UserRoles.CLERK)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Create Student (For Admin , Clerk Only)' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Student Created successfully',
+  })
+  async create(@Body() createStudentDto: CreateStudentDto) {
+    const isCreate = await this.studentService.create(createStudentDto);
 
-  // @Get()
-  // findAll() {
-  //   return this.studentService.findAll();
-  // }
+    if (!isCreate) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'User not found.',
+          },
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    return {
+      isSuccess: true,
+      data: {
+        message: 'Student Created successfully',
+      },
+      error: null,
+    };
+  }
+
+  @Get()
+  @Roles(UserRoles.SUPERADMIN, UserRoles.ADMIN, UserRoles.CLERK)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get All Students (For Admin , Clerk Only)' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Student fetched successfully',
+  })
+  @ApiQuery({ name: 'page', required: false, example: 1 })
+  @ApiQuery({ name: 'limit', required: false, example: 10 })
+  async findAll(@Query('page') page: number, @Query('limit') limit: number) {
+    const allStudents = await this.studentService.findAll(page, limit);
+    return {
+      isSuccess: true,
+      data: {
+        students: allStudents?.data,
+        meta: allStudents?.meta,
+        message: 'Student fetched successfully',
+      },
+      error: null,
+    };
+  }
 
   // @Get(':id')
   // findOne(@Param('id') id: string) {
