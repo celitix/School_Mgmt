@@ -60,8 +60,6 @@ export class AuthController {
     let otp = generateCode(6, 'number');
     const appEnv = this.config.get('env');
 
-    console.log('appEnv', appEnv);
-
     if (appEnv == 'development') {
       otp = '123456';
     }
@@ -193,10 +191,24 @@ export class AuthController {
     };
   }
 
-  // @Get()
-  // findAll() {
-  //   return this.authService.findAll();
-  // }
+  @Get('/seedUser')
+  @HttpCode(HttpStatus.OK)
+  //   @Roles(UserRoles.MENTOR)
+  @ApiOperation({ summary: 'Seed Super Admin' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Seed Super Admin',
+  })
+  async seedUser() {
+    const data = {
+      name: 'Arihant Jain',
+      phone: '9672670732',
+      email: 'arihantj916@gmail.com',
+      address: 'Jaipur',
+      roleId: 1,
+    };
+    return this.authService.createUser(data);
+  }
 
   // @Get(':id')
   // findOne(@Param('id') id: string) {

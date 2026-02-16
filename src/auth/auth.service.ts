@@ -3,6 +3,7 @@ import { SendOtpDto } from './dto/auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { otpExpiry } from 'helpers/authUtils';
+import { Prisma, Users } from 'generated/prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -53,5 +54,9 @@ export class AuthService {
         },
       },
     });
+  }
+
+  async createUser(data: any) {
+    return await this.prisma.users.create({ data });
   }
 }
