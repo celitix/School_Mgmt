@@ -59,4 +59,24 @@ export class AuthService {
   async createUser(data: any) {
     return await this.prisma.users.create({ data });
   }
+
+  async seedRoles(data: string[]) {
+    const rolePromises = data.map((roleName) =>
+      this.prisma.role.upsert({
+        where: { name: roleName },
+        update: {},
+        create: {
+          name: roleName,
+        },
+      }),
+    );
+
+    try {
+      await Promise.all(rolePromises);
+      return true;
+    } catch (error) {
+      console.error('❌ Error seeding roles:', error);
+      return false;
+    }
+  }
 }

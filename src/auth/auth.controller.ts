@@ -201,6 +201,26 @@ export class AuthController {
     };
   }
 
+  @Get('/seedRoles')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Seed Roles' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Seed Roles',
+  })
+  async seedRoles() {
+    const data = [
+      UserRoles.SUPERADMIN,
+      UserRoles.ADMIN,
+      UserRoles.STUDENT,
+      UserRoles.TEACHER,
+      UserRoles.ACCOUNTANT,
+      UserRoles.CLERK,
+    ];
+
+    return this.authService.seedRoles(data);
+  }
+
   @Get('/seedUser')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Seed Super Admin' })
