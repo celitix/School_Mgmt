@@ -1,6 +1,6 @@
-import bcrypt from "bcrypt";
-import jwt, { SignOptions } from "jsonwebtoken";
-import crypto from "crypto";
+import bcrypt from 'bcrypt';
+import jwt, { SignOptions } from 'jsonwebtoken';
+import crypto from 'crypto';
 
 interface JwtPayload {
   id: string;
@@ -8,14 +8,14 @@ interface JwtPayload {
   exp: number;
 }
 
-export const generateCode = (length = 6, type = "number") => {
-  let chars = "";
-  if (type === "number") chars = "0123456789";
-  else if (type === "alpha") chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  else chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+export const generateCode = (length = 6, type = 'number') => {
+  let chars = '';
+  if (type === 'number') chars = '0123456789';
+  else if (type === 'alpha') chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  else chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 
   const bytes = crypto.randomBytes(length);
-  let result = "";
+  let result = '';
 
   for (let i = 0; i < length; i++) {
     result += chars[bytes[i] % chars.length];
@@ -35,9 +35,10 @@ export const compareValue = async (code: string, encryptedCode: string) => {
 
 export const generateAccessToken = (
   data: { id: string; role: string },
-  expiresIn: SignOptions["expiresIn"] = "1d",
+  expiresIn: SignOptions['expiresIn'] = '1d',
+  secret: string,
 ) => {
-  const token = jwt.sign(data, process.env.JWT_SECRET as string, {
+  const token = jwt.sign(data, secret, {
     expiresIn,
   });
   return token;
@@ -45,9 +46,9 @@ export const generateAccessToken = (
 
 export const extractTokenFromHeader = (authHeader?: string) => {
   if (!authHeader) return null;
-  if (!authHeader.startsWith("Bearer ")) return null;
+  if (!authHeader.startsWith('Bearer ')) return null;
 
-  return authHeader.split(" ")[1];
+  return authHeader.split(' ')[1];
 };
 
 export const verifyToken = (token: string) => {

@@ -24,4 +24,34 @@ export class AuthService {
       },
     });
   }
+
+  async isOtpExist(otpId: string, phone: string) {
+    return await this.prisma.otp.findUnique({
+      where: { id: otpId, phone },
+    });
+  }
+
+  async addAttempt(otpId: string) {
+    return await this.prisma.otp.update({
+      where: { id: otpId },
+      data: {
+        attempts: {
+          increment: 1,
+        },
+      },
+    });
+  }
+
+  async findUser(phone: string) {
+    return await this.prisma.users.findUnique({
+      where: { phone },
+      include: {
+        role: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+  }
 }

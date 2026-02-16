@@ -11,10 +11,17 @@ import {
   HttpCode,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { SendOtpDto } from './dto/auth.dto';
+import { SendOtpDto, VerifyOtpDto } from './dto/auth.dto';
 import { ConfigService } from '@nestjs/config';
-import { generateCode, hashValue } from 'helpers/authUtils';
+import {
+  compareValue,
+  generateAccessToken,
+  generateCode,
+  hashValue,
+  isOtpExpired,
+} from 'helpers/authUtils';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Verify } from 'crypto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -35,7 +42,7 @@ export class AuthController {
     description: 'Otp sent successfully',
   })
   async sendOtp(@Body() data: SendOtpDto) {
-    const isPhoneExist = this.authService.isPhoneExist(data.phone);
+    const isPhoneExist = await this.authService.isPhoneExist(data.phone);
 
     if (!isPhoneExist) {
       throw new HttpException(
@@ -92,6 +99,95 @@ export class AuthController {
       data: {
         otpId: saveOtp.id,
         message: 'Otp sent successfully',
+      },
+      error: null,
+    };
+  }
+
+  @Post('/verifyOtp')
+  @HttpCode(HttpStatus.OK)
+  //   @Roles(UserRoles.MENTOR)
+  @ApiOperation({ summary: 'Verify Otp' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Otp verified successfully',
+  })
+  async verifyOtp(@Body() data: VerifyOtpDto) {
+    const isOtpExist = await this.authService.isOtpExist(
+      data.otpId,
+      data.phone,
+    );
+
+    if (!isOtpExist) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'Invalid Otp.',
+          },
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const isOtpExpire = isOtpExpired(isOtpExist.expiresAt);
+
+    if (isOtpExpire) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'Otp Expired.',
+          },
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    if (isOtpExist.attempts >= 5) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'Too many attempts. Please resend Otp.',
+          },
+        },
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
+
+    const isOtpSame = compareValue(data.otp, isOtpExist.otp);
+
+    if (!isOtpSame) {
+      await this.authService.addAttempt(data.otpId);
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'Invalid Otp.',
+          },
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const user = await this.authService.findUser(data.phone);
+
+    const token = generateAccessToken(
+      { id: isOtpExist.id, role: user?.role?.name! },
+      this.config.get('jwt.expiresIn') as number,
+      this.config.get('jwt.secret') as string,
+    );
+
+    return {
+      isSuccess: true,
+      data: {
+        token,
+        message: 'Otp verified successfully',
       },
       error: null,
     };
