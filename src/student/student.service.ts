@@ -32,6 +32,15 @@ export class StudentService {
     return await this.prisma.users.findUnique({ where: { phone } });
   }
 
+  async isStudentExistById(id: string) {
+    return await this.prisma.student.findUnique({
+      where: { id },
+      include: {
+        user: true,
+      },
+    });
+  }
+
   async findAll(page = 1, limit = 10) {
     const skip = (page - 1) * limit;
 

@@ -93,10 +93,38 @@ export class StudentController {
     };
   }
 
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.studentService.findOne(+id);
-  // }
+  @Get(':id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get Single Students' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Student fetched successfully',
+  })
+  async findOne(@Param('id') id: string) {
+    const isStudentExist = await this.studentService.isStudentExistById(id);
+
+    if (!isStudentExist) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'User not found.',
+          },
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return {
+      isSuccess: true,
+      data: {
+        isStudentExist,
+        message: 'Student fetched successfully',
+      },
+      error: null,
+    };
+  }
 
   // @Patch(':id')
   // update(@Param('id') id: string, @Body() updateStudentDto: UpdateStudentDto) {
