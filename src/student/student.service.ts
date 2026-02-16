@@ -1,26 +1,68 @@
 import { Injectable } from '@nestjs/common';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class StudentService {
-  create(createStudentDto: CreateStudentDto) {
-    return 'This action adds a new student';
+  constructor(private readonly prisma: PrismaService) {}
+  async create(data: CreateStudentDto) {
+    const { name, phone, address, email, ...rest } = data;
+    return await this.prisma.$transaction(async (tx) => {
+      const user = await tx.users.create({
+        data: {
+          name,
+          phone,
+          address,
+          email,
+          roleId: 3,
+        },
+      });
+
+      return await tx.student.create({
+        data: {
+          ...rest,
+          sectionId: '',
+          academicYearId: '',
+          userId: user.id,
+        },
+      });
+    });
   }
 
-  findAll() {
-    return `This action returns all student`;
+  async isStudentExist(phone: string) {
+    return await this.prisma.users.findUnique({ where: { phone } });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} student`;
+  async findAll() {
+    return await this.prisma.student.findMany({
+      include: {
+        user: true,
+      },
+    });
   }
 
-  update(id: number, updateStudentDto: UpdateStudentDto) {
-    return `This action updates a #${id} student`;
+  async findOne(id: string) {
+    return await this.prisma.student.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        user: true,
+      },
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} student`;
+  async update(id: string, updateStudentDto: UpdateStudentDto) {
+    return await this.prisma.student.update({
+      where: {
+        id,
+      },
+      data: updateStudentDto,
+    });
+  }
+
+  async remove(id: string) {
+    return await this.prisma.users.delete({ where: { id } });
   }
 }
