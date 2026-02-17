@@ -69,7 +69,7 @@ export class ClassAndSectionsController {
     };
   }
 
-  @Get('class')
+  @Get()
   async findAllClass() {
     const allClass = await this.classAndSectionsService.getAllClass();
 
@@ -84,7 +84,7 @@ export class ClassAndSectionsController {
   }
   @Get('section/:classId')
   async getAllSections(@Param('classId') classId: string) {
-    const sections = this.classAndSectionsService.getAllSections(classId);
+    const sections = await this.classAndSectionsService.getAllSections(classId);
 
     return {
       isSuccess: true,
