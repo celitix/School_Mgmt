@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { CreateClassAndSectionDto } from './dto/create-class-and-section.dto';
-import { UpdateClassAndSectionDto } from './dto/update-class-and-section.dto';
 
 @Injectable()
 export class ClassAndSectionsService {
-  create(createClassAndSectionDto: CreateClassAndSectionDto) {
+  createClass(any: any) {
     return 'This action adds a new classAndSection';
   }
 
+  createSection(any: any) {
+    return 'This action adds a new classAndSection';
+  }
   findAll() {
     return `This action returns all classAndSections`;
   }
@@ -16,7 +17,7 @@ export class ClassAndSectionsService {
     return `This action returns a #${id} classAndSection`;
   }
 
-  update(id: number, updateClassAndSectionDto: UpdateClassAndSectionDto) {
+  update(id: number, updateClassAndSectionDto: any) {
     return `This action updates a #${id} classAndSection`;
   }
 

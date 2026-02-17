@@ -1,11 +1,21 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { ClassAndSectionsService } from './class-and-sections.service';
-import { CreateClassAndSectionDto } from './dto/create-class-and-section.dto';
-import { UpdateClassAndSectionDto } from './dto/update-class-and-section.dto';
+import { CreateClassAndSectionDto } from './dto/create-class.dto';
+import { UpdateClassAndSectionDto } from './dto/update-class.dto';
 
 @Controller('class-and-sections')
 export class ClassAndSectionsController {
-  constructor(private readonly classAndSectionsService: ClassAndSectionsService) {}
+  constructor(
+    private readonly classAndSectionsService: ClassAndSectionsService,
+  ) {}
 
   @Post()
   create(@Body() createClassAndSectionDto: CreateClassAndSectionDto) {
@@ -23,7 +33,10 @@ export class ClassAndSectionsController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateClassAndSectionDto: UpdateClassAndSectionDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateClassAndSectionDto: UpdateClassAndSectionDto,
+  ) {
     return this.classAndSectionsService.update(+id, updateClassAndSectionDto);
   }
 

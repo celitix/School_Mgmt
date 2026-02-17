@@ -103,11 +103,11 @@ model Section {
   classId      String    @map("class_id")
   createdAt    DateTime  @default(now()) @map("created_at")
   updatedAt    DateTime  @updatedAt @map("updated_at")
-  supervisorId String    @unique @map("supervisor_id")
+  supervisorId String?    @unique @map("supervisor_id")
   //relations
   students     Student[]
   class        Class     @relation(fields: [classId], references: [id], onDelete: Cascade)
-  teacher      Teachers  @relation(fields: [supervisorId], references: [id], onDelete: Cascade)
+  teacher      Teachers?  @relation(fields: [supervisorId], references: [id], onDelete: Cascade)
 
   // @@unique([id, teacherId], name: "section_unique")
   @@unique([classId, name], name: "section_unique_2")
