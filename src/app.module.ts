@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { StudentModule } from './student/student.module';
 import { TeachersModule } from './teachers/teachers.module';
+import { ClassAndSectionsModule } from './class-and-sections/class-and-sections.module';
 import configurations from './config/configuration';
 
 @Module({
@@ -15,6 +16,7 @@ import configurations from './config/configuration';
     AuthModule,
     StudentModule,
     TeachersModule,
+    ClassAndSectionsModule,
   ],
   controllers: [],
   providers: [],

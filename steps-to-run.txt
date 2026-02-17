@@ -7,13 +7,11 @@ DATABASE_NAME="schl_mgmt"
 DATABASE_HOST="localhost"
 DATABASE_PORT=3306
 
-PORT = 3566
+PORT = 3569
 
+APP_ENV = development
 
-@UserInfo() user: IUserTokenInfo
-  @ApiBearerAuth('access-token')
-  @UseGuards(AuthGuard, RolesGuard)
-  @Roles(UserRoles.SUPERADMIN)
-
+JWT_SECRET = 4ea3aaa94ac8b7e9ee9f9f1fe923beb9e3f8d2cc6d1ecf5d5843b776a332ad0e
+JWT_EXPIRES_IN = 1d
 
   nest g resource blogs
