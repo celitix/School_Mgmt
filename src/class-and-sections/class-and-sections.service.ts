@@ -10,7 +10,29 @@ export class ClassAndSectionsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async createClass(data: CreateClassDto) {
-    return await this.prisma.class.create({ data });
+    return this.prisma.$transaction(async (tx) => {
+      const { noOfSections, name } = data;
+      const classId = await this.prisma.class.create({
+        data: {
+          name,
+        },
+      });
+
+      const sections = generateSections(Number(noOfSections));
+
+      await Promise.all(
+        sections.map((section) => {
+          return tx.section.create({
+            data: {
+              name: section,
+              classId: classId.id,
+            },
+          });
+        }),
+      );
+
+      return classId;
+    });
   }
 
   async createSection(data: CreateSectionDto) {
@@ -67,4 +89,14 @@ export class ClassAndSectionsService {
       data,
     });
   }
+}
+
+function generateSections(noOfSections: number): string[] {
+  const sections: string[] = [];
+
+  for (let i = 0; i < noOfSections; i++) {
+    sections.push(String.fromCharCode(65 + i)); // 65 = 'A'
+  }
+
+  return sections;
 }

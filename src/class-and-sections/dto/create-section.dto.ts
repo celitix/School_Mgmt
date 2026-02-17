@@ -19,7 +19,9 @@ export class CreateSectionDto {
   @ApiProperty({
     example: 'class-teacher-uuid',
     description: 'Class Teacher id',
+    required: false,
   })
   @IsString()
+  @IsOptional()
   supervisorId: string;
 }

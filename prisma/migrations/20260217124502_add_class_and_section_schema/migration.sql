@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE `sections` MODIFY `supervisor_id` VARCHAR(191) NULL;
+
+-- AddForeignKey
+ALTER TABLE `teachers` ADD CONSTRAINT `teachers_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
