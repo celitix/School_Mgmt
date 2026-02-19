@@ -14,4 +14,6 @@ APP_ENV = development
 JWT_SECRET = 4ea3aaa94ac8b7e9ee9f9f1fe923beb9e3f8d2cc6d1ecf5d5843b776a332ad0e
 JWT_EXPIRES_IN = 1d
 
+ALLOWED_ORIGINS = "http://localhost:5178,http://192.168.1.29:5178"
+
   nest g resource blogs
