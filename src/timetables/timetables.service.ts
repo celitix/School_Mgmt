@@ -1,26 +1,117 @@
 import { Injectable } from '@nestjs/common';
-import { CreateTimetableDto } from './dto/create-timetable.dto';
+import {
+  CreateTimeSlotDto,
+  CreateTimetableDto,
+} from './dto/create-timetable.dto';
 import { UpdateTimetableDto } from './dto/update-timetable.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { WeekDay } from 'generated/prisma/enums';
 
 @Injectable()
 export class TimetablesService {
-  create(createTimetableDto: CreateTimetableDto) {
-    return 'This action adds a new timetable';
+  constructor(private readonly prisma: PrismaService) {}
+  async createTimeSlot(data: CreateTimeSlotDto) {
+    return await this.prisma.timeSlot.create({ data });
+  }
+  async createTimeTable(data: CreateTimetableDto) {
+    return await this.prisma.timetable.create({ data });
   }
 
-  findAll() {
-    return `This action returns all timetables`;
+  async findAllTimeSlots(page: number = 1, limit: number = 10) {
+    return await this.prisma.timeSlot.findMany({
+      skip: (page - 1) * limit,
+      take: limit,
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} timetable`;
+  async findOneTimeSlots(id: string) {
+    return await this.prisma.timeSlot.findUnique({ where: { id } });
   }
 
-  update(id: number, updateTimetableDto: UpdateTimetableDto) {
+  async findAllTimeTables(
+    page: number = 1,
+    limit: number = 10,
+    classId: string,
+  ) {
+    const [data, total] = await Promise.all([
+      this.prisma.timetable.findMany({
+        where: {
+          classId,
+        },
+        include: {
+          timeSlot: true,
+        },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      this.prisma.timetable.count({
+        where: {
+          classId,
+        },
+      }),
+    ]);
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+        hasNextPage: page * limit < total,
+        hasPreviousPage: page > 1,
+      },
+    };
+  }
+
+  async findOneTimeTable(id: string) {
+    return await this.prisma.timetable.findUnique({
+      where: { id },
+      include: {
+        timeSlot: true,
+      },
+    });
+  }
+
+  async update(id: string, data: UpdateTimetableDto) {
     return `This action updates a #${id} timetable`;
   }
 
-  remove(id: number) {
+  async remove(id: string) {
     return `This action removes a #${id} timetable`;
+  }
+
+  async isTeacherAssignedTheTimeSlot(
+    dayOfWeek: WeekDay,
+    teacherId: string,
+    timeSlotId: string,
+  ) {
+    return await this.prisma.timetable.findUnique({
+      where: {
+        teacherId_dayOfWeek_timeSlotId: {
+          dayOfWeek,
+          teacherId,
+          timeSlotId,
+        },
+      },
+    });
+  }
+
+  async isTeacherAssignedClass(
+    sectionId: string,
+    timeSlotId: string,
+    classId: string,
+    dayOfWeek: WeekDay,
+  ) {
+    return await this.prisma.timetable.findUnique({
+      where: {
+        classId_sectionId_dayOfWeek_timeSlotId: {
+          dayOfWeek,
+          sectionId,
+          classId,
+          timeSlotId,
+        },
+      },
+    });
   }
 }
