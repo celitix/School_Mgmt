@@ -182,7 +182,7 @@ model Otp {
 
 model SalaryStructure {
   id              String    @id @default(uuid())
-  userId          String    @map("teacher_id")
+  userId          String    @map("user_id")
   effectiveFrom   DateTime  @map("effective_from")
   effectiveTo     DateTime? @map("effective_to")
   basicSalary     Float     @map("basic_salary")
