@@ -72,8 +72,8 @@ export class SubjectsService {
     });
   }
 
-  async findOne(id: number) {
-    return `This action returns a #${id} subject`;
+  async findOne(id: string) {
+    return await this.prisma.subjects.findUnique({ where: { id } });
   }
 
   async update(id: string, updateSubjectDto: UpdateSubjectDto) {

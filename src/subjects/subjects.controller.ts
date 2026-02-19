@@ -85,13 +85,84 @@ export class SubjectsController {
   //   return this.subjectsService.findOne(+id);
   // }
 
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateSubjectDto: UpdateSubjectDto) {
-  //   return this.subjectsService.update(+id, updateSubjectDto);
-  // }
+  @Patch(':id')
+  @Roles(UserRoles.SUPERADMIN, UserRoles.ADMIN, UserRoles.CLERK)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Update Subject (For Admin , Clerk Only)' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Subject Updated successfully',
+  })
+  async update(@Param('id') id: string, @Body() data: UpdateSubjectDto) {
+    const isExist = await this.subjectsService.findOne(id);
 
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.subjectsService.remove(+id);
-  // }
+    if (!isExist) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'Subject not found.',
+          },
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const isUpdate = await this.subjectsService.update(id, data);
+
+    if (!isUpdate) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'Something went wrong.',
+          },
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    return {
+      isSuccess: true,
+      data: {
+        message: 'Subject updated successfully',
+      },
+      error: null,
+    };
+  }
+
+  @Delete(':id')
+  @Roles(UserRoles.SUPERADMIN, UserRoles.ADMIN, UserRoles.CLERK)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Delete Subject (For Admin , Clerk Only)' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Subject deleted successfully',
+  })
+  async remove(@Param('id') id: string) {
+    const isdelete = await this.subjectsService.remove(id);
+
+    if (!isdelete) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'Something went wrong.',
+          },
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    return {
+      isSuccess: true,
+      data: {
+        message: 'Subject deleted successfully',
+      },
+      error: null,
+    };
+  }
 }
