@@ -8,6 +8,7 @@ import { StudentModule } from './student/student.module';
 import { TeachersModule } from './teachers/teachers.module';
 import { ClassAndSectionsModule } from './class-and-sections/class-and-sections.module';
 import { TimetablesModule } from './timetables/timetables.module';
+import { SubjectsModule } from './subjects/subjects.module';
 import configurations from './config/configuration';
 
 @Module({
@@ -19,6 +20,7 @@ import configurations from './config/configuration';
     TeachersModule,
     ClassAndSectionsModule,
     TimetablesModule,
+    SubjectsModule,
   ],
   controllers: [],
   providers: [],
