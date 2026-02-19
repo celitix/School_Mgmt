@@ -48,6 +48,22 @@ export class StudentController {
     description: 'Student Created successfully',
   })
   async create(@Body() createStudentDto: CreateStudentDto) {
+    const isStudentExist = await this.studentService.isStudentExist(
+      createStudentDto.phone,
+    );
+
+    if (isStudentExist) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'Student already exist.',
+          },
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
     const isCreate = await this.studentService.create(createStudentDto);
 
     if (!isCreate) {
