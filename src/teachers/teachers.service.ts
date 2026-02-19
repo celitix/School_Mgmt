@@ -103,4 +103,16 @@ export class TeachersService {
   async isUserExist(userId: string) {
     return await this.prisma.users.findUnique({ where: { id: userId } });
   }
+
+  async isSectionExist(sectionId: string) {
+    return await this.prisma.section.findUnique({ where: { id: sectionId } });
+  }
+  async assignTeacherToSection(teacherId: string, sectionId: string) {
+    return await this.prisma.section.update({
+      where: { id: sectionId },
+      data: {
+        supervisorId: teacherId,
+      },
+    });
+  }
 }

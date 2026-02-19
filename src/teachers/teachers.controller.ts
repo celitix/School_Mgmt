@@ -248,4 +248,60 @@ export class TeachersController {
       error: null,
     };
   }
+
+  @Get('/:teacherId/assign/:sectionId')
+  @Roles(UserRoles.SUPERADMIN, UserRoles.ADMIN, UserRoles.CLERK)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Assign Teacher to Section' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Teacher assigned successfully',
+  })
+  async assignTeacherToSection(
+    @Param('teacherId') teacherId: string,
+    @Param('sectionId') sectionId: string,
+  ) {
+    const isUserExist = await this.teachersService.isUserExist(teacherId);
+
+    if (!isUserExist) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'User not found.',
+          },
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const isSectionExist = await this.teachersService.isSectionExist(sectionId);
+
+    if (!isSectionExist) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'Section not found.',
+          },
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    const data = await this.teachersService.assignTeacherToSection(
+      teacherId,
+      sectionId,
+    );
+
+    return {
+      isSuccess: true,
+      data: {
+        data,
+        message: 'Teacher assigned successfully',
+      },
+      error: null,
+    };
+  }
 }
