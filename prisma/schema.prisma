@@ -235,8 +235,8 @@ model ClassSubject {
   classId   String @map("class_id")
   subjectId String @map("subject_id")
 
-  class   Class    @relation(fields: [classId], references: [id])
-  subject Subjects @relation(fields: [subjectId], references: [id])
+  class   Class    @relation(fields: [classId], references: [id], onDelete: Cascade)
+  subject Subjects @relation(fields: [subjectId], references: [id], onDelete: Cascade)
 
   @@unique([classId, subjectId])
   @@map("class_subjects")
