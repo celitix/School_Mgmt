@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateTeacherDto } from './dto/create-teacher.dto';
 import { UpdateTeacherDto } from './dto/update-teacher.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { CreateSalaryStructureDto } from './dto/create-salary-structure.dto';
 
 @Injectable()
 export class TeachersService {
@@ -85,5 +86,21 @@ export class TeachersService {
 
   async remove(id: string) {
     return await this.prisma.users.delete({ where: { id } });
+  }
+
+  async createSalaryStructure(data: CreateSalaryStructureDto) {
+    return await this.prisma.salaryStructure.create({
+      data,
+    });
+  }
+
+  async getTeacherSalaryStructure(userId: string) {
+    return await this.prisma.salaryStructure.findMany({
+      where: { userId },
+    });
+  }
+
+  async isUserExist(userId: string) {
+    return await this.prisma.users.findUnique({ where: { id: userId } });
   }
 }

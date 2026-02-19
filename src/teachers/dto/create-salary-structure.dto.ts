@@ -70,4 +70,11 @@ export class CreateSalaryStructureDto {
   })
   @IsInt()
   professionalTax: number;
+
+  @ApiProperty({
+    example: 'user-uuid',
+    description: 'User Id',
+  })
+  @IsString()
+  userId: string;
 }

@@ -25,6 +25,7 @@ import { Roles } from 'src/decorators/auth.decorator';
 import { UserRoles } from 'src/interfaces/user.interfaces';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { RolesGuard } from 'src/guards/roles.guard';
+import { CreateSalaryStructureDto } from './dto/create-salary-structure.dto';
 
 @Controller('teachers')
 @ApiBearerAuth('access-token')
@@ -157,6 +158,92 @@ export class TeachersController {
       isSuccess: true,
       data: {
         message: 'Teacher deleted successfully',
+      },
+      error: null,
+    };
+  }
+
+  @Post('/salary-structure')
+  @Roles(UserRoles.SUPERADMIN, UserRoles.ADMIN, UserRoles.CLERK)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Create Salary Structure' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Salary Structure Created successfully',
+  })
+  async createSalaryStructure(@Body() data: CreateSalaryStructureDto) {
+    const isUserExist = await this.teachersService.isUserExist(data.userId);
+
+    if (!isUserExist) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'User not found.',
+          },
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    const isCreate = await this.teachersService.createSalaryStructure(data);
+
+    if (!isCreate) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'Something went wrong.',
+          },
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    return {
+      isSuccess: true,
+      data: {
+        message: 'Salary Structure Created successfully',
+      },
+      error: null,
+    };
+  }
+
+  @Get('/salary-structure/:id')
+  @Roles(
+    UserRoles.SUPERADMIN,
+    UserRoles.ADMIN,
+    UserRoles.CLERK,
+    UserRoles.TEACHER,
+  )
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get Salary Structure' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Salary Structure fetched successfully',
+  })
+  async getSalaryStructure(@Param('id') id: string) {
+    const isUserExist = await this.teachersService.isUserExist(id);
+
+    if (!isUserExist) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'User not found.',
+          },
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    const data = await this.teachersService.getTeacherSalaryStructure(id);
+
+    return {
+      isSuccess: true,
+      data: {
+        data,
+        message: 'Salary Structure fetched successfully',
       },
       error: null,
     };
