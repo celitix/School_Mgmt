@@ -7,6 +7,7 @@ import { ConfigModule } from '@nestjs/config';
 import { StudentModule } from './student/student.module';
 import { TeachersModule } from './teachers/teachers.module';
 import { ClassAndSectionsModule } from './class-and-sections/class-and-sections.module';
+import { TimetablesModule } from './timetables/timetables.module';
 import configurations from './config/configuration';
 
 @Module({
@@ -17,6 +18,7 @@ import configurations from './config/configuration';
     StudentModule,
     TeachersModule,
     ClassAndSectionsModule,
+    TimetablesModule,
   ],
   controllers: [],
   providers: [],
