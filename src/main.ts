@@ -30,6 +30,25 @@ async function bootstrap() {
     });
   }
 
+  const allowedOrigins =
+    process.env.ALLOWED_ORIGINS?.split(',').map((o) => o.trim()) || [];
+
+  app.enableCors({
+    origin: (origin, callback) => {
+      // allow non-browser requests (Postman, mobile apps)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error('Not allowed by CORS'));
+    },
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
+    credentials: true,
+  });
+
   await app.listen(process.env.PORT ?? 3000, () => {
     console.log(`Server running on port ${process.env.PORT ?? 3000}`);
   });
