@@ -18,6 +18,7 @@ import { AuthGuard } from 'src/guards/auth.guard';
 import { RolesGuard } from 'src/guards/roles.guard';
 import { Roles } from 'src/decorators/auth.decorator';
 import { UserRoles } from 'src/interfaces/user.interfaces';
+import { AssignSubjectToClassDto } from 'src/subjects/dto/create-subject.dto';
 
 @Controller('class')
 @ApiBearerAuth('access-token')
@@ -105,10 +106,60 @@ export class ClassAndSectionsController {
     };
   }
 
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.classAndSectionsService.findOne(+id);
-  // }
+  @Post('/toggleSubjectAssignment')
+  async toggleSubjectAssignment(@Body() data: AssignSubjectToClassDto) {
+    const isToggle =
+      await this.classAndSectionsService.toggleSubjectAssignment(data);
+
+    if (!isToggle.isSuccess) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: isToggle.message,
+          },
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    return {
+      isSuccess: true,
+      data: {
+        message: isToggle.message,
+      },
+      error: null,
+    };
+  }
+
+  @Get('/subject/:id')
+  async findAllClassSubjects(@Param('id') id: string) {
+    const isClassExist =
+      await this.classAndSectionsService.isClassExistById(id);
+
+    if (!isClassExist) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'Class not found.',
+          },
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    const data = await this.classAndSectionsService.findAllSubjects(id);
+
+    return {
+      isSuccess: true,
+      data: {
+        message: 'Subjects Fetched successfully',
+        data,
+      },
+      error: null,
+    };
+  }
 
   // @Patch(':id')
   // update(

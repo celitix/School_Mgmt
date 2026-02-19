@@ -4,10 +4,15 @@ import { CreateSectionDto } from './dto/create-section.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UpdateClassDto } from './dto/update-class.dto';
 import { UpdateSectionDto } from './dto/update-section.dto';
+import { SubjectsService } from 'src/subjects/subjects.service';
+import { AssignSubjectToClassDto } from 'src/subjects/dto/create-subject.dto';
 
 @Injectable()
 export class ClassAndSectionsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly subjectsService: SubjectsService,
+  ) {}
 
   async createClass(data: CreateClassDto) {
     return this.prisma.$transaction(async (tx) => {
@@ -43,6 +48,9 @@ export class ClassAndSectionsService {
     return await this.prisma.class.findUnique({ where: { name } });
   }
 
+  async isClassExistById(id: string) {
+    return await this.prisma.class.findUnique({ where: { id } });
+  }
   async isSectionExist(name: string, classId: string) {
     return await this.prisma.section.findUnique({
       where: {
@@ -104,6 +112,13 @@ export class ClassAndSectionsService {
       where: { id },
       data,
     });
+  }
+
+  async toggleSubjectAssignment(data: AssignSubjectToClassDto) {
+    return await this.subjectsService.toggleSubjectAssignment(data);
+  }
+  async findAllSubjects(classId: string) {
+    return await this.subjectsService.findAllSubjects(classId);
   }
 }
 
