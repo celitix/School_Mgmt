@@ -8,12 +8,21 @@ import {
   Delete,
   HttpException,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { ClassAndSectionsService } from './class-and-sections.service';
 import { CreateClassDto } from './dto/create-class.dto';
 import { CreateSectionDto } from './dto/create-section.dto';
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { AuthGuard } from 'src/guards/auth.guard';
+import { RolesGuard } from 'src/guards/roles.guard';
+import { Roles } from 'src/decorators/auth.decorator';
+import { UserRoles } from 'src/interfaces/user.interfaces';
 
 @Controller('class')
+@ApiBearerAuth('access-token')
+@UseGuards(AuthGuard, RolesGuard)
+@Roles(UserRoles.SUPERADMIN, UserRoles.ADMIN, UserRoles.CLERK)
 export class ClassAndSectionsController {
   constructor(
     private readonly classAndSectionsService: ClassAndSectionsService,

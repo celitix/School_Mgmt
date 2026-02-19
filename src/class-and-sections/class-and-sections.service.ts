@@ -59,7 +59,23 @@ export class ClassAndSectionsService {
   }
 
   async getAllSections(classId: string) {
-    return this.prisma.section.findMany({ where: { classId } });
+    return this.prisma.section.findMany({
+      where: { classId },
+      select: {
+        id: true,
+        name: true,
+        teacher: {
+          select: {
+            id: true,
+            user: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
   }
 
   async findStudentsInSection(id: string) {
