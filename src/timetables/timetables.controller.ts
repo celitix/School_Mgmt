@@ -49,6 +49,58 @@ export class TimetablesController {
 
   @Post()
   async createTimeTable(@Body() data: CreateTimetableDto) {
+    const isTeacherExist = await this.timetablesService.isTeacherExist(
+      data.teacherId,
+    );
+
+    if (!isTeacherExist) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'Teacher not found.',
+          },
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const isClassExist = await this.timetablesService.isClassExist(
+      data.classId,
+    );
+
+    if (!isClassExist) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'Section not found.',
+          },
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const isSectionExist = await this.timetablesService.isSectionExist(
+      data.classId,
+      data.sectionId,
+    );
+
+    if (!isSectionExist) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'Section not found.',
+          },
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
     const isisTeacherAssignedTheTimeSlot =
       await this.timetablesService.isTeacherAssignedTheTimeSlot(
         data.dayOfWeek,

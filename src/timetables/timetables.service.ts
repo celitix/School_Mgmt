@@ -6,10 +6,16 @@ import {
 import { UpdateTimetableDto } from './dto/update-timetable.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { WeekDay } from 'generated/prisma/enums';
+import { TeachersService } from 'src/teachers/teachers.service';
+import { ClassAndSectionsService } from 'src/class-and-sections/class-and-sections.service';
 
 @Injectable()
 export class TimetablesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly teachersService: TeachersService,
+    private readonly classService: ClassAndSectionsService,
+  ) {}
   async createTimeSlot(data: CreateTimeSlotDto) {
     return await this.prisma.timeSlot.create({ data });
   }
@@ -113,5 +119,17 @@ export class TimetablesService {
         },
       },
     });
+  }
+
+  async isTeacherExist(teacherId: string) {
+    return await this.teachersService.isTeacherExistById(teacherId);
+  }
+
+  async isClassExist(classId: string) {
+    return await this.classService.isClassExist(classId);
+  }
+
+  async isSectionExist(classId: string, sectionId: string) {
+    return await this.classService.isSectionExist(classId, sectionId);
   }
 }
