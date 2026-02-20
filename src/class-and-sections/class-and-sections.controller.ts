@@ -177,6 +177,55 @@ export class ClassAndSectionsController {
     };
   }
 
+  @Get('/:teacherId/section/:sectionId/assign')
+  async isTeacherAssignToSection(
+    @Param('teacherId') teacherId: string,
+    @Param('sectionId') sectionId: string,
+  ) {
+    const isTeacherAssignToSection =
+      await this.classAndSectionsService.isTeacherAssignToSection(
+        teacherId,
+        sectionId,
+      );
+
+    if (isTeacherAssignToSection) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'Teacher already assign to section.',
+          },
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    const assign = await this.classAndSectionsService.assignTeacherToSection(
+      teacherId,
+      sectionId,
+    );
+
+    if (!assign) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'Something went wrong.',
+          },
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    return {
+      isSuccess: true,
+      data: {
+        message: 'Teacher assign to section successfully',
+      },
+      error: null,
+    };
+  }
+
   // @Patch(':id')
   // update(
   //   @Param('id') id: string,

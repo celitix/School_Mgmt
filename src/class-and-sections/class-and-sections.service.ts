@@ -120,6 +120,21 @@ export class ClassAndSectionsService {
   async findAllSubjects(classId: string) {
     return await this.subjectsService.findAllSubjects(classId);
   }
+
+  async isTeacherAssignToSection(teacherId: string, sectionId: string) {
+    return await this.prisma.section.findFirst({
+      where: { id: sectionId, supervisorId: teacherId },
+    });
+  }
+
+  async assignTeacherToSection(teacherId: string, sectionId: string) {
+    return await this.prisma.section.update({
+      where: { id: sectionId },
+      data: {
+        supervisorId: teacherId,
+      },
+    });
+  }
 }
 
 function generateSections(noOfSections: number): string[] {
