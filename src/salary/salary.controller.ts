@@ -72,10 +72,32 @@ export class SalaryController {
     };
   }
 
-  // @Get()
-  // async findAll() {
-  //   return this.salaryService.findAll();
-  // }
+  @Get('/process-monthly-salary/:userId')
+  @Roles(UserRoles.SUPERADMIN, UserRoles.ADMIN, UserRoles.CLERK)
+  async processMontlySalary(@Param('userId') userId: string) {
+    const data = await this.salaryService.processMontlySalary(userId);
+
+    if (!data) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'Something went wrong.',
+          },
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    return {
+      isSuccess: true,
+      data: {
+        message: 'Salary Structure processed successfully',
+      },
+      error: null,
+    };
+  }
 
   @Get(':userId')
   @Roles(

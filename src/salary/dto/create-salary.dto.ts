@@ -56,12 +56,12 @@ export class CreateSalaryStructureDto {
   @IsInt()
   esi: number;
 
-  @ApiProperty({
-    example: '50000',
-    description: 'Net Salary',
-  })
-  @IsInt()
-  netSalary: number;
+  // @ApiProperty({
+  //   example: '50000',
+  //   description: 'Net Salary',
+  // })
+  // @IsInt()
+  // netSalary: number;
 
   @ApiProperty({
     example: '100',
