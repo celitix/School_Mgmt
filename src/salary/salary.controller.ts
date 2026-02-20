@@ -74,7 +74,29 @@ export class SalaryController {
 
   @Get('/process-monthly-salary/:userId')
   @Roles(UserRoles.SUPERADMIN, UserRoles.ADMIN, UserRoles.CLERK)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Process Monthly Salary' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Monthly Salary processed successfully',
+  })
   async processMontlySalary(@Param('userId') userId: string) {
+    const isSalaryProcessed =
+      await this.salaryService.isSalaryProcessed(userId);
+
+    if (isSalaryProcessed) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'Monthly Salary already processed.',
+          },
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const data = await this.salaryService.processMontlySalary(userId);
 
     if (!data) {
@@ -93,7 +115,7 @@ export class SalaryController {
     return {
       isSuccess: true,
       data: {
-        message: 'Salary Structure processed successfully',
+        message: 'Monthly Salary processed successfully',
       },
       error: null,
     };

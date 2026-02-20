@@ -87,7 +87,6 @@ export class SalaryService {
       (salaryStructure?.professionalTax || 0);
 
     const netSalary = grossSalary - fixedDeductions;
-    console.log('grossSalary', netSalary);
 
     return await this.prisma.salaryPayment.create({
       data: {
@@ -103,5 +102,19 @@ export class SalaryService {
         allowance: salaryStructure?.allowance,
       },
     });
+  }
+
+  async isSalaryProcessed(userId: string) {
+    const now = new Date();
+
+    const existingSalary = await this.prisma.salaryPayment.findFirst({
+      where: {
+        userId,
+        month: now.getMonth() + 1,
+        year: now.getFullYear(),
+      },
+    });
+
+    return !!existingSalary;
   }
 }
