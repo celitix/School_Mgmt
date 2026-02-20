@@ -72,6 +72,10 @@ export class SubjectsService {
     });
   }
 
+  async allSubjects() {
+    return await this.prisma.subjects.findMany();
+  }
+
   async findOne(id: string) {
     return await this.prisma.subjects.findUnique({ where: { id } });
   }

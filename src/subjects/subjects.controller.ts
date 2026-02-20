@@ -75,6 +75,19 @@ export class SubjectsController {
     };
   }
 
+  @Get('')
+  async allSubjects() {
+    const data = await this.subjectsService.allSubjects();
+    return {
+      isSuccess: true,
+      data: {
+        message: 'Subjects Fetched successfully',
+        data,
+      },
+      error: null,
+    };
+  }
+
   @Get('class/:classId')
   async findAll(@Param('classId') classId: string) {
     const data = await this.subjectsService.findAllSubjects(classId);
