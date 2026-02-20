@@ -166,7 +166,7 @@ model StudentGurdians {
 
   //relations
   student Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  gurdian Gurdians @relation(fields: [gurdianId], references: [id])
+  gurdian Gurdians @relation(fields: [gurdianId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, gurdianId], name: "student_gurdian_unique")
   @@index([studentId, gurdianId])
@@ -230,7 +230,7 @@ model SalaryPayment {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user        Users              @relation(fields: [userId], references: [id])
+  user        Users              @relation(fields: [userId], references: [id], onDelete: Cascade)
   adjustments SalaryAdjustment[]
 
   @@unique([userId, month, year], name: "salary_payment_unique")
@@ -247,7 +247,7 @@ model SalaryAdjustment {
 
   createdAt DateTime @default(now())
 
-  salary SalaryPayment @relation(fields: [salaryId], references: [id])
+  salary SalaryPayment @relation(fields: [salaryId], references: [id], onDelete: Cascade)
 
   @@index([salaryId])
   @@map("salary_adjustments")
@@ -298,11 +298,11 @@ model Timetable {
   dayOfWeek  WeekDay @map("day_of_week")
   timeSlotId String  @map("time_slot_id")
 
-  class    Class    @relation(fields: [classId], references: [id])
-  section  Section  @relation(fields: [sectionId], references: [id])
-  subject  Subjects @relation(fields: [subjectId], references: [id])
-  teacher  Teachers @relation(fields: [teacherId], references: [id])
-  timeSlot TimeSlot @relation(fields: [timeSlotId], references: [id])
+  class    Class    @relation(fields: [classId], references: [id], onDelete: Cascade)
+  section  Section  @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  subject  Subjects @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  teacher  Teachers @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  timeSlot TimeSlot @relation(fields: [timeSlotId], references: [id], onDelete: Cascade)
 
   @@unique([teacherId, dayOfWeek, timeSlotId])
   @@unique([classId, sectionId, dayOfWeek, timeSlotId])
