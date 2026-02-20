@@ -31,6 +31,22 @@ export class ClassAndSectionsController {
 
   @Post('/create')
   async createClass(@Body() data: CreateClassDto) {
+    const isClassExist = await this.classAndSectionsService.isClassExist(
+      data.name,
+    );
+
+    if (isClassExist) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'Class already exist.',
+          },
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
     const isCreate = await this.classAndSectionsService.createClass(data);
 
     if (!isCreate) {
