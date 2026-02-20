@@ -31,6 +31,7 @@ model Users {
   gurdians         Gurdians[]
   teachers         Teachers[]
   salaryStructures SalaryStructure[]
+  salaryPayments   SalaryPayment[]
 
   @@index([phone])
   @@map("users")
@@ -194,28 +195,63 @@ model SalaryStructure {
   allowance       Float?    @map("allowance")
   pf              Float?    @map("pf")
   esi             Float?    @map("esi")
-  netSalary       Float     @map("net_salary")
   professionalTax Float?    @map("professional_tax")
   createdAt       DateTime  @default(now()) @map("created_at")
   updatedAt       DateTime  @updatedAt @map("updated_at")
 
   user Users @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId, effectiveFrom, effectiveTo])
   @@map("salary_structures")
 }
 
-// teacher_salary_payments
-// - id
-// - teacher_id
-// - month
-// - basic
-// - allowance
-// - fixed_deductions
-// - variable_deductions
-// - bonus
-// - net_amount
-// - status
-//if required
+model SalaryPayment {
+  id                String @id @default(uuid())
+  userId            String @map("user_id")
+  salaryStructureId String @map("salary_structure_id")
+
+  month Int
+  year  Int
+
+  basic     Float
+  hra       Float?
+  allowance Float?
+
+  fixedDeductions    Float @default(0)
+  variableDeductions Float @default(0)
+  bonus              Float @default(0)
+
+  grossSalary Float
+  netSalary   Float
+
+  status SalaryPaymentEnum @default(PENDING)
+  paidAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user        Users              @relation(fields: [userId], references: [id])
+  adjustments SalaryAdjustment[]
+
+  @@unique([userId, month, year], name: "salary_payment_unique")
+  @@map("salary_payments")
+}
+
+model SalaryAdjustment {
+  id       String @id @default(uuid())
+  salaryId String @map("salary_id")
+
+  title  String
+  type   AdjustementType
+  amount Float
+
+  createdAt DateTime @default(now())
+
+  salary SalaryPayment @relation(fields: [salaryId], references: [id])
+
+  @@index([salaryId])
+  @@map("salary_adjustments")
+}
 
 model Subjects {
   id   String @id @default(uuid())
@@ -286,4 +322,14 @@ enum WeekDay {
   THURSDAY
   FRIDAY
   SATURDAY
+}
+
+enum SalaryPaymentEnum {
+  PENDING
+  PAID
+}
+
+enum AdjustementType {
+  ALLOWANCE
+  DEDUCTION
 }
