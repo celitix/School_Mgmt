@@ -10,12 +10,18 @@ import {
   HttpStatus,
   HttpException,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { SalaryService } from './salary.service';
 import { CreateSalaryStructureDto } from './dto/create-salary.dto';
 import { UpdateSalaryDto } from './dto/update-salary.dto';
 import { Roles } from 'src/decorators/auth.decorator';
-import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { UserRoles } from 'src/interfaces/user.interfaces';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { RolesGuard } from 'src/guards/roles.guard';
@@ -121,6 +127,50 @@ export class SalaryController {
     };
   }
 
+  @Get('/getMonthlySalary/:userId')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get Monthly Salary' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Monthly Salary fetched successfully',
+  })
+  @Roles(
+    UserRoles.SUPERADMIN,
+    UserRoles.ADMIN,
+    UserRoles.CLERK,
+    UserRoles.TEACHER,
+  )
+  @ApiQuery({ name: 'month', type: Number, required: true, example: 2 })
+  @ApiQuery({ name: 'year', type: Number, required: true, example: 2026 })
+  async getMonthlySalary(
+    @Param('userId') userId: string,
+    @Query('month') month: number,
+    @Query('year') year: number,
+  ) {
+    const data = await this.salaryService.getMonthlySalary(userId, month, year);
+    if (!data) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'Monthly Salary not found.',
+          },
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return {
+      isSuccess: true,
+      data: {
+        data,
+        message: 'Monthly Salary fetched successfully',
+      },
+      error: null,
+    };
+  }
+
   @Get(':userId')
   @Roles(
     UserRoles.SUPERADMIN,
@@ -156,6 +206,52 @@ export class SalaryController {
       data: {
         data,
         message: 'Salary Structure fetched successfully',
+      },
+      error: null,
+    };
+  }
+
+  @Post('/pay/:id')
+  @Roles(
+    UserRoles.SUPERADMIN,
+    UserRoles.ADMIN,
+    UserRoles.CLERK,
+    UserRoles.TEACHER,
+  )
+  async paySalary(@Param('id') id: string) {
+    const isSalaryProcessed = await this.salaryService.isMonthlySalaryExist(id);
+
+    if (!isSalaryProcessed) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'Monthly Salary not found.',
+          },
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    const res = await this.salaryService.markSalaryAsPay(id);
+
+    if (!res) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'Something went wrong.',
+          },
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    return {
+      isSuccess: true,
+      data: {
+        message: 'Salary paid successfully',
       },
       error: null,
     };

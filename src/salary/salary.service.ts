@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { CreateSalaryStructureDto } from './dto/create-salary.dto';
 import { UpdateSalaryDto } from './dto/update-salary.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { AdjustementType } from 'generated/prisma/enums';
+import { CreateSalaryAdjustmentDto } from './dto/salary-adjusment.dto';
 
 @Injectable()
 export class SalaryService {
@@ -116,5 +118,74 @@ export class SalaryService {
     });
 
     return !!existingSalary;
+  }
+  async isMonthlySalaryExist(id: string) {
+    const existingSalary = await this.prisma.salaryPayment.findUnique({
+      where: {
+        id,
+      },
+    });
+    return !!existingSalary;
+  }
+  async salaryAdjustment(
+    salaryId: string,
+    title: string,
+    type: AdjustementType,
+    amount: number,
+  ) {
+    return await this.prisma.salaryAdjustment.create({
+      data: {
+        title,
+        type,
+        amount,
+        salaryId,
+      },
+    });
+  }
+
+  async getMonthlySalary(userId: string, month: number, year: number) {
+    return await this.prisma.salaryPayment.findFirst({
+      where: {
+        userId,
+        month,
+        year,
+      },
+      include: {
+        adjustments: true,
+      },
+    });
+  }
+
+  async addSalaryAdjustment(id: string, data: CreateSalaryAdjustmentDto) {
+    
+  }
+  async markSalaryAsPay(id: string) {
+    let allowanceTotal = 0;
+    let deductionTotal = 0;
+
+    const salary = await this.prisma.salaryPayment.findFirst({
+      where: {
+        id,
+      },
+      include: {
+        adjustments: true,
+      },
+    });
+
+    if (!salary) {
+      return false;
+    }
+
+    for (const adjustment of salary.adjustments) {
+      if (adjustment.type === AdjustementType.ALLOWANCE) {
+        allowanceTotal += adjustment.amount;
+      } else {
+        deductionTotal += adjustment.amount;
+      }
+    }
+
+    console.log('allowanceTotal', allowanceTotal);
+    console.log('deductionTotal', deductionTotal);
+    return true;
   }
 }
