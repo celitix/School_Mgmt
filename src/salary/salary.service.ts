@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateSalaryStructureDto } from './dto/create-salary.dto';
 import { UpdateSalaryDto } from './dto/update-salary.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { AdjustementType } from 'generated/prisma/enums';
+import { AdjustementType, SalaryPaymentEnum } from 'generated/prisma/enums';
 import { CreateSalaryAdjustmentDto } from './dto/salary-adjusment.dto';
 
 @Injectable()
@@ -156,9 +156,12 @@ export class SalaryService {
     });
   }
 
-  async addSalaryAdjustment(id: string, data: CreateSalaryAdjustmentDto) {
-    
+  async addSalaryAdjustment(data: CreateSalaryAdjustmentDto) {
+    return await this.prisma.salaryAdjustment.create({
+      data,
+    });
   }
+
   async markSalaryAsPay(id: string) {
     let allowanceTotal = 0;
     let deductionTotal = 0;
@@ -184,8 +187,21 @@ export class SalaryService {
       }
     }
 
-    console.log('allowanceTotal', allowanceTotal);
-    console.log('deductionTotal', deductionTotal);
+    const grossSalary = salary.basic + allowanceTotal;
+    const netSalary = grossSalary - deductionTotal;
+
+    await this.prisma.salaryPayment.update({
+      where: {
+        id,
+      },
+      data: {
+        grossSalary,
+        netSalary,
+        paidAt: new Date(),
+        variableDeductions: deductionTotal,
+        status: SalaryPaymentEnum.PAID
+      },
+    });
     return true;
   }
 }

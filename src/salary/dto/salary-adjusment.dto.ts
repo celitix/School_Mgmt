@@ -23,7 +23,7 @@ export class CreateSalaryAdjustmentDto {
     enum: AdjustementType,
   })
   @IsEnum(AdjustementType)
-  type: string;
+  type: AdjustementType;
 
   @ApiProperty({
     example: 500,

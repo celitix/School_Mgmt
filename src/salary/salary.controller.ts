@@ -25,6 +25,7 @@ import {
 import { UserRoles } from 'src/interfaces/user.interfaces';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { RolesGuard } from 'src/guards/roles.guard';
+import { CreateSalaryAdjustmentDto } from './dto/salary-adjusment.dto';
 
 @Controller('salary')
 @ApiBearerAuth('access-token')
@@ -252,6 +253,32 @@ export class SalaryController {
       isSuccess: true,
       data: {
         message: 'Salary paid successfully',
+      },
+      error: null,
+    };
+  }
+
+  @Post('/addSalaryAdjustment')
+  @Roles(UserRoles.SUPERADMIN, UserRoles.ADMIN, UserRoles.CLERK)
+  async addSalaryAdjustment(@Body() data: CreateSalaryAdjustmentDto) {
+    const res = await this.salaryService.addSalaryAdjustment(data);
+
+    if (!res) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'Something went wrong.',
+          },
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    return {
+      isSuccess: false,
+      data: {
+        message: 'Salary Adjustment added successfully',
       },
       error: null,
     };
