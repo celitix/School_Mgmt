@@ -195,6 +195,7 @@ export class AuthController {
       isSuccess: true,
       data: {
         token,
+        role: user?.role?.name,
         message: 'Otp verified successfully',
       },
       error: null,

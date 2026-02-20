@@ -75,10 +75,18 @@ export class SubjectsController {
     };
   }
 
-  // @Get()
-  // findAll() {
-  //   return this.subjectsService.findAll();
-  // }
+  @Get('class/:classId')
+  async findAll(@Param('classId') classId: string) {
+    const data = await this.subjectsService.findAllSubjects(classId);
+    return {
+      isSuccess: true,
+      data: {
+        message: 'Subjects Fetched successfully',
+        data,
+      },
+      error: null,
+    };
+  }
 
   // @Get(':id')
   // findOne(@Param('id') id: string) {
@@ -161,6 +169,93 @@ export class SubjectsController {
       isSuccess: true,
       data: {
         message: 'Subject deleted successfully',
+      },
+      error: null,
+    };
+  }
+
+  @Post('/:subjectId/class/:classId')
+  @Roles(UserRoles.SUPERADMIN, UserRoles.ADMIN, UserRoles.CLERK)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Assign Subject to Class (For Admin , Clerk Only)' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Subject assigned successfully',
+  })
+  async addSubjectToClass(
+    @Param('classId') classId: string,
+    @Param('subjectId') subjectId: string,
+  ) {
+    const isSubjectExist = await this.subjectsService.findOne(subjectId);
+
+    if (!isSubjectExist) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'Subject not found.',
+          },
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const isClassExist = await this.subjectsService.isClassExist(classId);
+
+    if (!isClassExist) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'Class not found.',
+          },
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const isClassSubjectExist = await this.subjectsService.isClassSubjectExist(
+      classId,
+      subjectId,
+    );
+
+    if (isClassSubjectExist) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'Subject already assigned.',
+          },
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const data = await this.subjectsService.addSubjectToClass(
+      classId,
+      subjectId,
+    );
+
+    if (!data) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'Something went wrong.',
+          },
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    return {
+      isSuccess: true,
+      data: {
+        message: 'Subject assigned successfully',
+        data,
       },
       error: null,
     };

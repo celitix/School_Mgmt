@@ -96,4 +96,28 @@ export class SubjectsService {
       },
     });
   }
+
+  async addSubjectToClass(classId: string, subjectId: string) {
+    return await this.prisma.classSubject.create({
+      data: {
+        classId,
+        subjectId,
+      },
+    });
+  }
+
+  async isClassSubjectExist(classId: string, subjectId: string) {
+    return await this.prisma.classSubject.findUnique({
+      where: {
+        classId_subjectId: {
+          classId,
+          subjectId,
+        },
+      },
+    });
+  }
+
+  async isClassExist(classId: string) {
+    return await this.prisma.class.findUnique({ where: { id: classId } });
+  }
 }
