@@ -1,15 +1,18 @@
 import axios from "axios";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-// const API_BASE_URL = "/api";
 
 export const fetchWithAuth = async (endpoint, options = {}) => {
   const token = sessionStorage.getItem("token");
 
   if (!token) {
-    console.error("No token found, redirecting to login.");
     window.location.href = "/login";
-    return;
+    return {
+      isSuccess: false,
+      status: 401,
+      data: null,
+      message: "Unauthorized. Please login again.",
+    };
   }
 
   const defaultHeaders = {
@@ -20,45 +23,16 @@ export const fetchWithAuth = async (endpoint, options = {}) => {
     defaultHeaders["Content-Type"] = "application/json";
   }
 
-  // const instance = axios.create({ timeout: 100000 });
   const instance = axios.create({
     timeout: 100000,
-    // validateStatus: (status) => status < 500,
-    validateStatus: () => true,
+    validateStatus: () => true, // handle errors manually
   });
 
-  instance.interceptors.response.use(
-    (response) => {
-      if (response.status === 401) {
-        sessionStorage.removeItem("token");
-        window.location.href = "/login";
-      }
-      return response;
-    },
-    (error) => {
-      // This block now triggers only for 500 or network errors
-      console.error("Axios Network/Server Error:", error);
-      // return Promise.resolve({
-      //   data: {
-      //     status: false,
-      //     message: "Something went wrong. Please try again.",
-      //   },
-      // });
-      return {
-        status: 0,
-        data: {
-          status: false,
-          message: "Unable to connect. Please try again.",
-        },
-      };
-    }
-  );
   try {
     const response = await instance({
       method: options.method || "GET",
       url: `${API_BASE_URL}${endpoint}`,
       data: options.body,
-      // credentials: true,
       withCredentials: true,
       headers: {
         ...defaultHeaders,
@@ -66,22 +40,36 @@ export const fetchWithAuth = async (endpoint, options = {}) => {
       },
     });
 
-    // if (response.statusText !== "OK") {
-    //   console.error(`API Error: ${response.status} ${response.statusText}`);
-    //   return;
-    // }
+    // Handle Unauthorized
+    if (response.status === 401) {
+      sessionStorage.removeItem("token");
+      window.location.href = "/login";
+      return {
+        isSuccess: false,
+        status: 401,
+        data: null,
+        message: "Session expired. Please login again.",
+      };
+    }
 
-    // if (response.status !== 200) {
-    //   // console.error(`API Error: ${response.status}`);
-    //   return;
-    // }
-
-    return response.data;
+    // Normalize backend response
+    return {
+      isSuccess: response.data?.isSuccess ?? false,
+      status: response.status,
+      data: response.data?.data ?? null,
+      message:
+        response.data?.data?.message ||
+        response.data?.error ||
+        "Something went wrong",
+    };
   } catch (error) {
     console.error("Network Error:", error);
+
     return {
-      status: false,
-      message: error,
+      isSuccess: false,
+      status: 0,
+      data: null,
+      message: "Unable to connect. Please try again.",
     };
   }
 };

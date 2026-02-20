@@ -20,10 +20,10 @@ const App = () => {
 
         <Route element={<PrivateRoute />}>
           <Route element={<PermissionRoute />}>
+            <Route path="/*" element={<Approutes />} />
           </Route>
         </Route>
 
-        <Route path="/*" element={<Approutes />} />
         <Route path="*" element={<PageNotFound />} />
 
       </Routes>

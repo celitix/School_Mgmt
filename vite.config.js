@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => {
       },
     },
     server: {
-      port: 5175,
+      port: 5178,
       host: true,
       allowedHosts: [".ngrok-free.app"],
       historyApiFallback: true,

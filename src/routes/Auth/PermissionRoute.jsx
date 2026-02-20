@@ -6,6 +6,9 @@ import PageNotFound from "@/NotFound/PageNotFound";
 // CONTEXT
 import Loader from "@/components/ui/Loader";
 
+import { useRoleContext } from "@/context/RoleContext";
+
+
 const routePermissions = [
   {
     name: "COMMON",
@@ -32,34 +35,33 @@ const PermissionRoute = () => {
   console.log("Current Role in PermissionRoute:", role);
   const { pathname } = useLocation();
 
-  const isAllowed = useMemo(() => {
-    if (!role) return false;
+  // const isAllowed = useMemo(() => {
+  //   if (!role) return false;
 
-    return routePermissions.some(
-      (group) => group.roles.includes(role) && group.paths.includes(pathname)
-    );
-  }, [role, pathname]);
+  //   return routePermissions.some(
+  //     (group) => group.roles.includes(role) && group.paths.includes(pathname)
+  //   );
+  // }, [role, pathname]);
 
   if (CommonIsLoading) {
     return (
       <div className="h-screen flex items-center justify-center">
         <Loader />
-        {/* Loading... */}
       </div>
     );
   }
 
-  if (role === null || role === undefined) {
-    return (
-      <div className="h-screen flex items-center justify-center">
-        <Loader />
-      </div>
-    );
-  }
+  // if (role === null || role === undefined) {
+  //   return (
+  //     <div className="h-screen flex items-center justify-center">
+  //       <Loader />
+  //     </div>
+  //   );
+  // }
 
-  if (isAllowed === false) {
-    return <PageNotFound />;
-  }
+  // if (isAllowed === false) {
+  //   return <PageNotFound />;
+  // }
 
   return <Outlet />;
 };

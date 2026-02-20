@@ -6,27 +6,28 @@ const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
 const handleApiError = (error) => {
   if (error.response) {
-    // Server responded with a status code
     return {
-      success: false,
+      isSuccess: false,
       status: error.response.status,
+      data: null,
       message:
+        error.response.data?.error ||
         error.response.data?.message ||
         error.response.statusText ||
         "Something went wrong",
     };
   } else if (error.request) {
-    // Request made but no response
     return {
-      success: false,
+      isSuccess: false,
       status: null,
+      data: null,
       message: "Server not responding. Please try again later.",
     };
   } else {
-    // Something else happened
     return {
-      success: false,
+      isSuccess: false,
       status: null,
+      data: null,
       message: error.message,
     };
   }
@@ -35,13 +36,14 @@ const handleApiError = (error) => {
 // Login
 export const login = async (data) => {
   try {
-    const response = await axios.post(`${apiUrl}/user/auth/login`, data, {
+    const response = await axios.post(`${apiUrl}/auth/sendOtp`, data, {
       headers: { "Content-Type": "application/json" },
     });
 
     return {
-      success: true,
-      data: response.data,
+      isSuccess: response.data.isSuccess,
+      data: response.data.data,
+      message: response.data.data?.message,
       status: response.status,
     };
   } catch (error) {
@@ -52,13 +54,14 @@ export const login = async (data) => {
 // verifyOTP
 export const verifyOTP = async (data) => {
   try {
-    const response = await axios.post(`${apiUrl}/user/auth/verifyotp`, data, {
+    const response = await axios.post(`${apiUrl}/auth/verifyOtp`, data, {
       headers: { "Content-Type": "application/json" },
     });
 
     return {
-      success: true,
-      data: response.data,
+      isSuccess: response.data.isSuccess,
+      data: response.data.data,
+      message: response.data.data?.message,
       status: response.status,
     };
   } catch (error) {

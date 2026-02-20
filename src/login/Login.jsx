@@ -13,6 +13,7 @@ import { login, verifyOTP } from "@/apis/login/login";
 // CUSTOM COMPONENTS
 import InputField from "@/components/common/InputField";
 import UniversalButton from "@/components/common/UniversalButton";
+import { useRoleContext } from "@/context/RoleContext";
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
@@ -22,6 +23,7 @@ const Login = () => {
     otp: "",
   });
 
+  const { role, setRole } = useRoleContext();
 
   const [inputDetails, setInputDetails] = useState({
     userName: "",
@@ -40,9 +42,9 @@ const Login = () => {
     try {
       const payload = { phone: inputDetails.phoneNo };
       const res = await login(payload);
-      if (res.success) {
-        toast.success(res.data.message || "OTP Sent Successfully!");
-        setOtpDetails({ otpId: res.data.data.otpId, otp: "" });
+      if (res.isSuccess) {
+        toast.success(res.message || "OTP Sent Successfully!");
+        setOtpDetails({ otpId: res.data.otpId, otp: "" });
         setStep("otp");
       } else {
         toast.error(res.message || "Login failed!");
@@ -63,20 +65,21 @@ const Login = () => {
     setLoading(true);
     try {
       const payload = {
-        otp_id: otpDetails.otpId,
+        otpId: otpDetails.otpId,
         otp: otpDetails.otp,
         phone: inputDetails.phoneNo,
       };
 
       const res = await verifyOTP(payload);
 
-      if (res.success) {
+      if (res.isSuccess) {
         toast.success("OTP Verified Successfully!");
 
-        const { token, role } = res.data;
+        // const { token, role } = res.data;
+        const { token } = res.data;
 
         if (token) sessionStorage.setItem("token", token);
-        if (role) setRole(role);
+        // if (role) setRole(role);
 
         navigate("/");
       } else {
@@ -265,4 +268,3 @@ const Login = () => {
 };
 
 export default Login;
-

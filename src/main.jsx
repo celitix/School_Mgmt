@@ -4,11 +4,15 @@ import "./index.css";
 import { PrimeReactProvider } from "primereact/api";
 import "primereact/resources/themes/lara-light-cyan/theme.css";
 import App from "./App.jsx";
+import { RoleProvider } from "./context/RoleContext.jsx";
+
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <PrimeReactProvider>
-      <App />
+      <RoleProvider>
+        <App />
+      </RoleProvider>
     </PrimeReactProvider>
   </StrictMode>
 );
