@@ -9,6 +9,7 @@ import { TeachersModule } from './teachers/teachers.module';
 import { ClassAndSectionsModule } from './class-and-sections/class-and-sections.module';
 import { TimetablesModule } from './timetables/timetables.module';
 import { SubjectsModule } from './subjects/subjects.module';
+import { SalaryModule } from './salary/salary.module';
 import configurations from './config/configuration';
 
 @Module({
@@ -21,6 +22,7 @@ import configurations from './config/configuration';
     ClassAndSectionsModule,
     TimetablesModule,
     SubjectsModule,
+    SalaryModule,
   ],
   controllers: [],
   providers: [],
