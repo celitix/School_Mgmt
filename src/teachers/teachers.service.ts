@@ -43,6 +43,11 @@ export class TeachersService {
     const skip = (page - 1) * limit;
     const [teachers, total] = await Promise.all([
       this.prisma.teachers.findMany({
+        where: {
+          user: {
+            isActive: true,
+          },
+        },
         include: {
           user: true,
         },
@@ -52,7 +57,13 @@ export class TeachersService {
           createdAt: 'desc', // optional but recommended
         },
       }),
-      this.prisma.teachers.count(),
+      this.prisma.teachers.count({
+        where: {
+          user: {
+            isActive: true,
+          },
+        },
+      }),
     ]);
 
     return {
@@ -72,6 +83,9 @@ export class TeachersService {
     return await this.prisma.teachers.findUnique({
       where: {
         id,
+        user: {
+          isActive: true,
+        },
       },
       include: {
         user: true,
@@ -84,7 +98,13 @@ export class TeachersService {
   }
 
   async remove(id: string) {
-    return await this.prisma.users.delete({ where: { id } });
+    return await this.prisma.users.update({
+      where: { id },
+      data: {
+        isActive: false,
+        leftAt: new Date(),
+      },
+    });
   }
 
   // async createSalaryStructure(data: CreateSalaryStructureDto) {

@@ -58,6 +58,11 @@ export class StudentService {
 
     const [students, total] = await Promise.all([
       this.prisma.student.findMany({
+        where: {
+          user: {
+            isActive: true,
+          },
+        },
         include: {
           user: true,
           gurdians: {
@@ -78,7 +83,13 @@ export class StudentService {
           createdAt: 'desc', // optional but recommended
         },
       }),
-      this.prisma.student.count(),
+      this.prisma.student.count({
+        where: {
+          user: {
+            isActive: true,
+          },
+        },
+      }),
     ]);
 
     return {
@@ -98,6 +109,9 @@ export class StudentService {
     return await this.prisma.student.findUnique({
       where: {
         id,
+        user: {
+          isActive: true,
+        },
       },
       include: {
         user: true,
@@ -126,7 +140,13 @@ export class StudentService {
   }
 
   async remove(id: string) {
-    return await this.prisma.users.delete({ where: { id } });
+    return await this.prisma.users.update({
+      where: { id },
+      data: {
+        isActive: false,
+        leftAt: new Date(),
+      },
+    });
   }
 
   async createGurdian(data: CreateStudentGurdianDto) {
