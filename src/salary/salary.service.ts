@@ -199,9 +199,20 @@ export class SalaryService {
         netSalary,
         paidAt: new Date(),
         variableDeductions: deductionTotal,
-        status: SalaryPaymentEnum.PAID
+        status: SalaryPaymentEnum.PAID,
       },
     });
     return true;
+  }
+
+  async isMontlySalaryPaid(id: string) {
+    return await this.prisma.salaryPayment.findUnique({
+      where: {
+        id,
+      },
+      select: {
+        paidAt: true,
+      },
+    });
   }
 }

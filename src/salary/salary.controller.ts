@@ -234,6 +234,21 @@ export class SalaryController {
         HttpStatus.NOT_FOUND,
       );
     }
+
+    const isMontlySalaryPaid = await this.salaryService.isMontlySalaryPaid(id);
+
+    if (isMontlySalaryPaid) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'Monthly Salary already paid.',
+          },
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
     const res = await this.salaryService.markSalaryAsPay(id);
 
     if (!res) {
