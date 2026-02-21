@@ -166,6 +166,7 @@ export class StudentService {
         data: {
           occupation: rest.occupation,
           userId: user.id,
+          type: rest.type,
         },
       });
       return await tx.studentGurdians.create({

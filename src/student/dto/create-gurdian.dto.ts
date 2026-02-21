@@ -47,4 +47,11 @@ export class CreateStudentGurdianDto {
   })
   @IsString()
   studentId: string;
+
+  @ApiProperty({
+    example: 'Father',
+    description: 'type of gurdian',
+  })
+  @IsString()
+  type: string;
 }
