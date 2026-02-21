@@ -48,8 +48,19 @@ export class TeachersService {
             isActive: true,
           },
         },
-        include: {
-          user: true,
+        select: {
+          id: true,
+          enrollmentNo: true,
+          joiningDate: true,
+          exoperience: true,
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              phone: true,
+            },
+          },
         },
         skip,
         take: limit,

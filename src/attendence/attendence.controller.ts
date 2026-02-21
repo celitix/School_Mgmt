@@ -10,11 +10,17 @@ import {
   HttpStatus,
   HttpCode,
   HttpException,
+  Query,
 } from '@nestjs/common';
 import { AttendenceService } from './attendence.service';
 import { CreateAttendenceDto } from './dto/create-attendence.dto';
 import { UpdateAttendenceDto } from './dto/update-attendence.dto';
-import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { RolesGuard } from 'src/guards/roles.guard';
 import { Roles } from 'src/decorators/auth.decorator';
@@ -29,10 +35,10 @@ export class AttendenceController {
   @Post()
   @Roles(UserRoles.SUPERADMIN, UserRoles.ADMIN, UserRoles.TEACHER)
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Create Salary Structure' })
+  @ApiOperation({ summary: 'Mark attendence' })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Salary Structure Created successfully',
+    description: 'Attendence created successfully',
   })
   async create(@Body() data: CreateAttendenceDto) {
     const isCreate = await this.attendenceService.create(data);
@@ -59,14 +65,64 @@ export class AttendenceController {
   }
 
   @Get()
-  async findAll() {
-    // return this.attendenceService.findAll('sdd', 'sdd', 'sdd', 'sdd', 'sdd');
+  @Roles(UserRoles.SUPERADMIN, UserRoles.ADMIN, UserRoles.TEACHER)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get Attendence' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Attendence fetched successfully.',
+  })
+  @ApiQuery({
+    name: 'startDate',
+    example: '2024-04-01T00:00:00.000Z',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'endDate',
+    example: '2024-04-01T00:00:00.000Z',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'classId',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'studentId',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'sectionId',
+    required: false,
+  })
+  async findAll(
+    @Query('startDate') startDate: Date,
+    @Query('endDate') endDate: Date,
+    @Query('classId') classId: string,
+    @Query('studentId') studentId: string,
+    @Query('sectionId') sectionId: string,
+  ) {
+    const data = await this.attendenceService.findAll(
+      startDate,
+      endDate,
+      classId,
+      sectionId,
+      studentId,
+    );
+
+    return {
+      isSuccess: true,
+      data: {
+        attendence: data,
+        message: 'Attendence fetched successfully.',
+      },
+      error: null,
+    };
   }
 
-  @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return this.attendenceService.findOne(id);
-  }
+  // @Get(':id')
+  // async findOne(@Param('id') id: string) {
+  //   return this.attendenceService.findOne(id);
+  // }
 
   // @Patch(':id')
   // async update(
