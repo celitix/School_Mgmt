@@ -1,26 +1,41 @@
 import { Injectable } from '@nestjs/common';
 import { CreateAcademicYearDto } from './dto/create-academic-year.dto';
 import { UpdateAcademicYearDto } from './dto/update-academic-year.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class AcademicYearService {
-  create(createAcademicYearDto: CreateAcademicYearDto) {
-    return 'This action adds a new academicYear';
+  constructor(private readonly prisma: PrismaService) {}
+
+  async create(data: CreateAcademicYearDto) {
+    return await this.prisma.academicYear.create({ data });
   }
 
-  findAll() {
-    return `This action returns all academicYear`;
+  async findAll() {
+    return await this.prisma.academicYear.findMany();
   }
 
-  findOne(id: number) {
+  async findOne(id: number) {
     return `This action returns a #${id} academicYear`;
   }
 
-  update(id: number, updateAcademicYearDto: UpdateAcademicYearDto) {
-    return `This action updates a #${id} academicYear`;
+  async update(id: string, data: UpdateAcademicYearDto) {
+    return await this.prisma.academicYear.update({ where: { id }, data });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} academicYear`;
+  async remove(id: string) {
+    return await this.prisma.academicYear.delete({ where: { id } });
+  }
+
+  async isAcademicYearExistById(id: string) {
+    return await this.prisma.academicYear.findUnique({ where: { id } });
+  }
+
+  async isAcademicYearExist(from: string, to: string) {
+    return await this.prisma.academicYear.findUnique({
+      where: {
+        fromYear_toYear: { fromYear: from, toYear: to },
+      },
+    });
   }
 }
