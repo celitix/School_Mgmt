@@ -14,19 +14,38 @@ datasource db {
   provider = "mysql"
 }
 
+model Account {
+  id       String  @id @default(uuid())
+  phone    String  @unique
+  email    String?
+  password String? // optional if OTP only
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  users     Users[]
+
+  @@index([phone])
+  @@map("accounts")
+}
+
 model Users {
   id      String  @id @default(uuid())
   name    String
   roleId  Int     @map("role_id")
   email   String?
-  phone   String  @unique
   address String
+
+  accountId String? @map("account_id")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   isActive Boolean   @default(true)
   leftAt   DateTime? @map("left_at")
+
+  //relations
+  account Account? @relation(fields: [accountId], references: [id], onDelete: Cascade)
 
   //relations
   role             Role              @relation(fields: [roleId], references: [id], onDelete: Cascade)
@@ -36,7 +55,7 @@ model Users {
   salaryStructures SalaryStructure[]
   salaryPayments   SalaryPayment[]
 
-  @@index([phone])
+  @@index([accountId])
   @@map("users")
 }
 
