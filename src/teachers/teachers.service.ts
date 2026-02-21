@@ -104,8 +104,29 @@ export class TeachersService {
     });
   }
 
-  async update(id: string, updateTeacherDto: UpdateTeacherDto) {
-    return `This action updates a #${id} teacher`;
+  async update(id: string, data: UpdateTeacherDto) {
+    const { name, phone, address, email, ...teacher } = data;
+
+    const userData: any = {};
+    if (name !== undefined) userData.name = name;
+    if (phone !== undefined) userData.phone = phone;
+    if (address !== undefined) userData.address = address;
+    if (email !== undefined) userData.email = email;
+
+    return await this.prisma.$transaction(async (tx) => {
+      const student = await tx.teachers.update({
+        where: { id },
+        data: teacher,
+      });
+
+      if (Object.keys(userData).length > 0) {
+        await tx.users.update({
+          where: { id: student.userId },
+          data: userData,
+        });
+      }
+      return student;
+    });
   }
 
   async remove(id: string) {

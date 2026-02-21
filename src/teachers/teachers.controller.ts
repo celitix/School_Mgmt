@@ -129,8 +129,48 @@ export class TeachersController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTeacherDto: UpdateTeacherDto) {
-    return this.teachersService.update(id, updateTeacherDto);
+  @Roles(UserRoles.SUPERADMIN, UserRoles.ADMIN, UserRoles.CLERK)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Update Single Teacher' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Teacher updated successfully',
+  })
+  async update(@Param('id') id: string, @Body() data: UpdateTeacherDto) {
+    const isTeacherExist = await this.teachersService.isTeacherExistById(id);
+    if (!isTeacherExist) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'User not found.',
+          },
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    const isUpdated = await this.teachersService.update(id, data);
+
+    if (!isUpdated) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'User not found.',
+          },
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    return {
+      isSuccess: true,
+      data: {
+        message: 'Teacher updated successfully',
+      },
+      error: null,
+    };
   }
 
   @Delete(':id')
@@ -139,7 +179,7 @@ export class TeachersController {
   @ApiOperation({ summary: 'Delete Single Teacher' })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Teacher fetched successfully',
+    description: 'Teacher Deleted successfully',
   })
   async remove(@Param('id') id: string) {
     const isTeacherExist = await this.teachersService.isTeacherExistById(id);
