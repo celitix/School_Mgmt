@@ -53,6 +53,7 @@ model AcademicYear {
   createdAt DateTime  @default(now()) @map("created_at")
   students  Student[]
 
+  @@unique([fromYear, toYear])
   @@map("academic_years")
 }
 
