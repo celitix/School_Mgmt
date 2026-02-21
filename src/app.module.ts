@@ -11,6 +11,7 @@ import { TimetablesModule } from './timetables/timetables.module';
 import { SubjectsModule } from './subjects/subjects.module';
 import { SalaryModule } from './salary/salary.module';
 import { AcademicYearModule } from './academic-year/academic-year.module';
+import { AttendenceModule } from './attendence/attendence.module';
 import configurations from './config/configuration';
 
 @Module({
@@ -25,6 +26,7 @@ import configurations from './config/configuration';
     SubjectsModule,
     SalaryModule,
     AcademicYearModule,
+    AttendenceModule,
   ],
   controllers: [],
   providers: [],
