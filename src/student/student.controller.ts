@@ -143,10 +143,34 @@ export class StudentController {
     };
   }
 
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateStudentDto: UpdateStudentDto) {
-  //   return this.studentService.update(+id, updateStudentDto);
-  // }
+  @Patch(':id')
+  async update(
+    @Param('id') id: string,
+    @Body() updateStudentDto: UpdateStudentDto,
+  ) {
+    const isUpdate = await this.studentService.update(id, updateStudentDto);
+
+    if (!isUpdate) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'User not found.',
+          },
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return {
+      isSuccess: true,
+      data: {
+        message: 'Student updated successfully',
+      },
+      error: null,
+    };
+  }
 
   @Delete(':id')
   @HttpCode(HttpStatus.OK)

@@ -1,26 +1,58 @@
 import { Injectable } from '@nestjs/common';
 import { CreateAttendenceDto } from './dto/create-attendence.dto';
 import { UpdateAttendenceDto } from './dto/update-attendence.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class AttendenceService {
-  create(createAttendenceDto: CreateAttendenceDto) {
-    return 'This action adds a new attendence';
+  constructor(private readonly prisma: PrismaService) {}
+  async create(data: CreateAttendenceDto) {
+    return await this.prisma.attendance.create({ data });
   }
 
-  findAll() {
-    return `This action returns all attendence`;
+  async findAll(
+    startDate: Date,
+    endDate: Date,
+    classId: string,
+    sectionId: string,
+    studentId: string,
+  ) {
+    let where: any = {};
+
+    if (classId) where.classId = classId;
+    if (sectionId) where.sectionId = sectionId;
+    if (studentId) where.studentId = studentId;
+
+    if (startDate || endDate) {
+      where.date = {};
+
+      if (startDate) {
+        where.date.gte = startDate;
+      }
+
+      if (endDate) {
+        where.date.lte = endDate;
+      }
+    }
+
+    return await this.prisma.attendance.findMany({
+      where,
+      include: {
+       
+      },
+      orderBy: { date: 'asc' },
+    });
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     return `This action returns a #${id} attendence`;
   }
 
-  update(id: number, updateAttendenceDto: UpdateAttendenceDto) {
+  update(id: string, data: UpdateAttendenceDto) {
     return `This action updates a #${id} attendence`;
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return `This action removes a #${id} attendence`;
   }
 }

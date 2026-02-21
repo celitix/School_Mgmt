@@ -45,6 +45,7 @@ export class StudentService {
                 id: true,
                 occupation: true,
                 user: true,
+                type: true,
               },
             },
           },
@@ -63,19 +64,32 @@ export class StudentService {
             isActive: true,
           },
         },
-        include: {
-          user: true,
-          gurdians: {
+        select: {
+          id: true,
+          dob: true,
+          gender: true,
+          admissionNo: true,
+          admissionDate: true,
+          user: {
             select: {
-              gurdian: {
-                select: {
-                  id: true,
-                  occupation: true,
-                  user: true,
-                },
-              },
+              id: true,
+              name: true,
+              email: true,
+              phone: true,
             },
           },
+          // gurdians: {
+          //   select: {
+          //     gurdian: {
+          //       select: {
+          //         id: true,
+          //         occupation: true,
+          //         user: true,
+          //         type: true,
+          //       },
+          //     },
+          //   },
+          // },
         },
         skip,
         take: limit,
@@ -130,15 +144,54 @@ export class StudentService {
     });
   }
 
-  async update(id: string, updateStudentDto: UpdateStudentDto) {
-    return await this.prisma.student.update({
-      where: {
-        id,
-      },
-      data: updateStudentDto,
+  // async update(id: string, updateStudentDto: UpdateStudentDto) {
+  //   return await this.prisma.student.update({
+  //     where: {
+  //       id,
+  //     },
+  //     data: updateStudentDto,
+  //   });
+  // }
+
+  async update(id: string, dto: UpdateStudentDto) {
+    const { name, phone, address, email, ...studentData } = dto;
+    const userData: any = {};
+    if (name !== undefined) userData.name = name;
+    if (phone !== undefined) userData.phone = phone;
+    if (address !== undefined) userData.address = address;
+    if (email !== undefined) userData.email = email;
+
+    return await this.prisma.$transaction(async (tx) => {
+      const { academicYearId, sectionId, ...restStudentData } = studentData;
+
+      const student = await tx.student.update({
+        where: { id },
+        data: {
+          ...restStudentData,
+
+          ...(academicYearId && {
+            academicYear: {
+              connect: { id: academicYearId },
+            },
+          }),
+
+          ...(sectionId && {
+            section: {
+              connect: { id: sectionId },
+            },
+          }),
+        },
+      });
+
+      if (Object.keys(userData).length > 0) {
+        await tx.users.update({
+          where: { id: student.userId },
+          data: userData,
+        });
+      }
+      return student;
     });
   }
-
   async remove(id: string) {
     return await this.prisma.users.update({
       where: { id },
