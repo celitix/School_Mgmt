@@ -10,6 +10,7 @@ import { ClassAndSectionsModule } from './class-and-sections/class-and-sections.
 import { TimetablesModule } from './timetables/timetables.module';
 import { SubjectsModule } from './subjects/subjects.module';
 import { SalaryModule } from './salary/salary.module';
+import { AcademicYearModule } from './academic-year/academic-year.module';
 import configurations from './config/configuration';
 
 @Module({
@@ -23,6 +24,7 @@ import configurations from './config/configuration';
     TimetablesModule,
     SubjectsModule,
     SalaryModule,
+    AcademicYearModule,
   ],
   controllers: [],
   providers: [],
