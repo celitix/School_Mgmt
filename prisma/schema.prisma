@@ -25,6 +25,9 @@ model Users {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  isActive Boolean   @default(true)
+  leftAt   DateTime? @map("left_at")
+
   //relations
   role             Role              @relation(fields: [roleId], references: [id], onDelete: Cascade)
   students         Student[]
@@ -81,6 +84,7 @@ model Student {
   academicYear AcademicYear      @relation(fields: [academicYearId], references: [id], onDelete: Cascade)
   section      Section           @relation(fields: [sectionId], references: [id], onDelete: Cascade)
   gurdians     StudentGurdians[]
+  attendances  Attendance[]
 
   @@unique([userId, admissionNo, rollNo], name: "student_unique")
   @@index([userId, admissionNo, rollNo])
@@ -97,23 +101,25 @@ model Class {
   sections      Section[]
   classSubjects ClassSubject[]
   timetables    Timetable[]
+  attendances   Attendance[]
 
   @@index([name])
   @@map("classes")
 }
 
 model Section {
-  id           String      @id @default(uuid())
+  id           String       @id @default(uuid())
   name         String
-  classId      String      @map("class_id")
-  createdAt    DateTime    @default(now()) @map("created_at")
-  updatedAt    DateTime    @updatedAt @map("updated_at")
-  supervisorId String?     @unique @map("supervisor_id")
+  classId      String       @map("class_id")
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+  supervisorId String?      @unique @map("supervisor_id")
   //relations
   students     Student[]
-  class        Class       @relation(fields: [classId], references: [id], onDelete: Cascade)
-  teacher      Teachers?   @relation(fields: [supervisorId], references: [id], onDelete: Cascade)
+  class        Class        @relation(fields: [classId], references: [id], onDelete: Cascade)
+  teacher      Teachers?    @relation(fields: [supervisorId], references: [id], onDelete: SetNull)
   timetables   Timetable[]
+  attendances  Attendance[]
 
   // @@unique([id, teacherId], name: "section_unique")
   @@unique([classId, name], name: "section_unique_2")
@@ -134,8 +140,9 @@ model Teachers {
   user Users @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   //relations
-  sections   Section[]
-  timetables Timetable[]
+  sections    Section[]
+  timetables  Timetable[]
+  attendances Attendance[]
 
   @@unique([userId, enrollmentNo], name: "teacher_unique")
   @@index([userId, enrollmentNo])
@@ -231,7 +238,7 @@ model SalaryPayment {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user        Users              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        Users              @relation(fields: [userId], references: [id])
   adjustments SalaryAdjustment[]
 
   @@unique([userId, month, year], name: "salary_payment_unique")
@@ -310,6 +317,28 @@ model Timetable {
   @@map("timetables")
 }
 
+model Attendance {
+  id        String           @id @default(uuid())
+  studentId String
+  classId   String
+  sectionId String
+  date      DateTime
+  status    AttendanceStatus
+  markedBy  String?
+  remarks   String?
+
+  student Student @relation(fields: [studentId], references: [id])
+  class   Class   @relation(fields: [classId], references: [id])
+  section Section @relation(fields: [sectionId], references: [id])
+
+  teacher Teachers? @relation(fields: [markedBy], references: [id], onDelete: SetNull)
+
+  @@unique([studentId, date])
+  @@index([classId, sectionId, date])
+  @@index([date])
+  @@map("attendances")
+}
+
 enum StudentStatus {
   ACTIVE
   GRADUATE
@@ -333,4 +362,10 @@ enum SalaryPaymentEnum {
 enum AdjustementType {
   ALLOWANCE
   DEDUCTION
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LEAVE
 }
