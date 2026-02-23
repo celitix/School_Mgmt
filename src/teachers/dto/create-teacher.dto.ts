@@ -59,4 +59,20 @@ export class CreateTeacherDto {
   })
   @IsDateString()
   joiningDate: Date;
+
+  @ApiProperty({
+    example: '9687445525',
+    description: 'Alternate phone number 1',
+    required: false,
+  })
+  @IsString()
+  altPhone1?: string;
+
+  @ApiProperty({
+    example: '9687445526',
+    description: 'Alternate phone number 2',
+    required: false,
+  })
+  @IsString()
+  altPhone2?: string;
 }

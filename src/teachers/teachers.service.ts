@@ -9,10 +9,16 @@ export class TeachersService {
   async create(data: CreateTeacherDto) {
     const { name, phone, address, email, ...rest } = data;
     return await this.prisma.$transaction(async (tx) => {
+      const account = await tx.account.create({
+        data: {
+          phone,
+        },
+      });
       const user = await tx.users.create({
         data: {
           name,
           address,
+          accountId: account.id,
           email,
           roleId: 3,
         },
@@ -111,8 +117,9 @@ export class TeachersService {
     const { name, phone, address, email, ...teacher } = data;
 
     const userData: any = {};
+    const accountData: any = {};
     if (name !== undefined) userData.name = name;
-    if (phone !== undefined) userData.phone = phone;
+    if (phone !== undefined) accountData.phone = phone;
     if (address !== undefined) userData.address = address;
     if (email !== undefined) userData.email = email;
 
@@ -122,10 +129,23 @@ export class TeachersService {
         data: teacher,
       });
 
+      let accountId: any;
       if (Object.keys(userData).length > 0) {
-        await tx.users.update({
+        accountId = await tx.users.update({
           where: { id: student.userId },
           data: userData,
+          select: {
+            accountId: true,
+          },
+        });
+      }
+
+      if (accountData?.phone && accountId.accountId) {
+        await tx.account.update({
+          where: { id: accountId.accountId },
+          data: {
+            phone: accountData.phone,
+          },
         });
       }
       return student;
@@ -133,11 +153,26 @@ export class TeachersService {
   }
 
   async remove(id: string) {
-    return await this.prisma.users.update({
-      where: { id },
-      data: {
-        leftAt: new Date(),
-      },
+    return await this.prisma.$transaction(async (tx) => {
+      const user = await tx.users.update({
+        where: { id },
+        data: {
+          leftAt: new Date(),
+        },
+        select: {
+          accountId: true,
+        },
+      });
+
+      if (user.accountId) {
+        await tx.account.update({
+          where: { id: user.accountId },
+          data: {
+            isActive: false,
+          },
+        });
+      }
+      return user;
     });
   }
 
