@@ -8,29 +8,29 @@ import { CreateStudentGurdianDto } from './dto/create-gurdian.dto';
 export class StudentService {
   constructor(private readonly prisma: PrismaService) {}
   async create(data: CreateStudentDto) {
-    const { name, phone, address, email, ...rest } = data;
+    const { name, address, email, ...rest } = data;
     return await this.prisma.$transaction(async (tx) => {
-      const isPhoneExist = await this.prisma.account.findUnique({
-        where: {
-          phone,
-        },
-      });
-      let accountId: string;
+      // const isPhoneExist = await this.prisma.account.findUnique({
+      //   where: {
+      //     phone,
+      //   },
+      // });
+      // let accountId: string;
 
-      if (isPhoneExist) {
-        accountId = isPhoneExist.id;
-      } else {
-        const account = await tx.account.create({
-          data: {
-            phone,
-          },
-        });
-        accountId = account.id;
-      }
+      // if (isPhoneExist) {
+      //   accountId = isPhoneExist.id;
+      // } else {
+      //   const account = await tx.account.create({
+      //     data: {
+      //       phone,
+      //     },
+      //   });
+      //   accountId = account.id;
+      // }
       const user = await tx.users.create({
         data: {
           name,
-          accountId,
+          // accountId,
           address,
           email,
           roleId: 3,
@@ -54,7 +54,15 @@ export class StudentService {
     return await this.prisma.student.findUnique({
       where: { id },
       include: {
-        user: true,
+        user: {
+          include: {
+            account: {
+              select: {
+                phone: true,
+              },
+            },
+          },
+        },
         gurdians: {
           select: {
             gurdian: {
@@ -150,6 +158,13 @@ export class StudentService {
       },
       include: {
         user: true,
+        academicYear: {
+          select: {
+            id: true,
+            fromYear: true,
+            toYear: true,
+          },
+        },
         gurdians: {
           select: {
             gurdian: {
@@ -175,10 +190,11 @@ export class StudentService {
   // }
 
   async update(id: string, dto: UpdateStudentDto) {
-    const { name, phone, address, email, ...studentData } = dto;
+    const { name, address, email, ...studentData } = dto;
     const userData: any = {};
+    const accountData: any = {};
     if (name !== undefined) userData.name = name;
-    if (phone !== undefined) userData.phone = phone;
+
     if (address !== undefined) userData.address = address;
     if (email !== undefined) userData.email = email;
 
@@ -208,8 +224,12 @@ export class StudentService {
         await tx.users.update({
           where: { id: student.userId },
           data: userData,
+          select: {
+            accountId: true,
+          },
         });
       }
+
       return student;
     });
   }

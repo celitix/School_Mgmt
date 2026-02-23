@@ -51,6 +51,9 @@ export class TeachersService {
         where: {
           user: {
             leftAt: null,
+            account: {
+              isActive: true,
+            },
           },
         },
         select: {
@@ -105,10 +108,21 @@ export class TeachersService {
         id,
         user: {
           leftAt: null,
+          account: {
+            isActive: true,
+          },
         },
       },
       include: {
-        user: true,
+        user: {
+          include: {
+            account: {
+              select: {
+                phone: true,
+              },
+            },
+          },
+        },
       },
     });
   }
@@ -124,7 +138,7 @@ export class TeachersService {
     if (email !== undefined) userData.email = email;
 
     return await this.prisma.$transaction(async (tx) => {
-      const student = await tx.teachers.update({
+      const data = await tx.teachers.update({
         where: { id },
         data: teacher,
       });
@@ -132,7 +146,7 @@ export class TeachersService {
       let accountId: any;
       if (Object.keys(userData).length > 0) {
         accountId = await tx.users.update({
-          where: { id: student.userId },
+          where: { id: data.userId },
           data: userData,
           select: {
             accountId: true,
@@ -148,7 +162,7 @@ export class TeachersService {
           },
         });
       }
-      return student;
+      return data;
     });
   }
 
