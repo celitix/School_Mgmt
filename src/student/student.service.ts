@@ -65,12 +65,22 @@ export class StudentService {
         },
         gurdians: {
           select: {
+            id: true,
+            isPrimary: true,
             gurdian: {
               select: {
                 id: true,
                 occupation: true,
-                user: true,
                 type: true,
+                user: {
+                  select:{
+                    id: true,
+                    name: true,
+                    email: true,
+                    address: true,
+                    leftAt: true
+                  }
+                },
               },
             },
           },
@@ -95,6 +105,22 @@ export class StudentService {
           gender: true,
           admissionNo: true,
           admissionDate: true,
+          academicYear: {
+            select: {
+              fromYear: true,
+              toYear: true,
+            },
+          },
+          section: {
+            select: {
+              name: true,
+              class: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
           user: {
             select: {
               id: true,
@@ -167,6 +193,8 @@ export class StudentService {
         },
         gurdians: {
           select: {
+            id: true,
+            isPrimary: true,
             gurdian: {
               select: {
                 id: true,
@@ -192,9 +220,7 @@ export class StudentService {
   async update(id: string, dto: UpdateStudentDto) {
     const { name, address, email, ...studentData } = dto;
     const userData: any = {};
-    const accountData: any = {};
     if (name !== undefined) userData.name = name;
-
     if (address !== undefined) userData.address = address;
     if (email !== undefined) userData.email = email;
 
@@ -251,7 +277,7 @@ export class StudentService {
   }
 
   async createGurdian(data: CreateStudentGurdianDto) {
-    const { name, phone, address, email, ...rest } = data;
+    const { name, phone, address, email, isPrimary, ...rest } = data;
     return await this.prisma.$transaction(async (tx) => {
       const isPhoneExist = await this.prisma.account.findUnique({
         where: {
@@ -287,10 +313,20 @@ export class StudentService {
           type: rest.type,
         },
       });
+
+      await tx.studentGurdians.updateMany({
+        where: {
+          studentId: rest.studentId,
+        },
+        data: {
+          isPrimary: false,
+        },
+      });
       return await tx.studentGurdians.create({
         data: {
           studentId: rest.studentId,
           gurdianId: gurdians.id,
+          isPrimary,
         },
       });
     });

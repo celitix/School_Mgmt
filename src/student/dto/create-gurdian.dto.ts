@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsInt, IsOptional, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsDateString,
+  IsInt,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class CreateStudentGurdianDto {
   @ApiProperty({
@@ -54,4 +60,11 @@ export class CreateStudentGurdianDto {
   })
   @IsString()
   type: string;
+
+  @ApiProperty({
+    example: true,
+    description: 'Phone Number Primary Status. Only one can be true',
+  })
+  @IsBoolean()
+  isPrimary: boolean;
 }
