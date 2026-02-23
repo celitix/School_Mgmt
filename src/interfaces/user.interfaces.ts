@@ -1,9 +1,14 @@
 export interface IUserTokenInfo {
   id: string;
-  role: string;
+  role: role[];
   iat: number;
   exp: number;
 }
+
+type role = {
+  id: number;
+  name: string;
+};
 
 export enum UserRoles {
   ADMIN = 'ADMIN',

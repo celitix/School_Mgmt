@@ -23,9 +23,11 @@ import {
   ApiResponse,
 } from '@nestjs/swagger';
 import { UserRoles } from 'src/interfaces/user.interfaces';
+import type { IUserTokenInfo } from 'src/interfaces/user.interfaces';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { RolesGuard } from 'src/guards/roles.guard';
 import { CreateSalaryAdjustmentDto } from './dto/salary-adjusment.dto';
+import { UserInfo } from 'src/decorators/user.decorator';
 
 @Controller('salary')
 @ApiBearerAuth('access-token')
@@ -147,7 +149,27 @@ export class SalaryController {
     @Param('userId') userId: string,
     @Query('month') month: number,
     @Query('year') year: number,
+    @UserInfo() user: IUserTokenInfo,
   ) {
+    const role = user?.role[0]?.name;
+    const loggedInUserId = user?.id;
+
+    if (
+      role !== 'ADMIN' &&
+      role !== 'SUPER_ADMIN' &&
+      userId !== loggedInUserId
+    ) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'You can only access your own salary structure.',
+          },
+        },
+        HttpStatus.FORBIDDEN,
+      );
+    }
     const data = await this.salaryService.getMonthlySalary(userId, month, year);
     if (!data) {
       throw new HttpException(
@@ -185,7 +207,29 @@ export class SalaryController {
     status: HttpStatus.OK,
     description: 'Salary Structure fetched successfully',
   })
-  async findSalaryStructure(@Param('userId') userId: string) {
+  async findSalaryStructure(
+    @Param('userId') userId: string,
+    @UserInfo() user: IUserTokenInfo,
+  ) {
+    const role = user?.role[0]?.name;
+    const loggedInUserId = user?.id;
+
+    if (
+      role !== 'ADMIN' &&
+      role !== 'SUPER_ADMIN' &&
+      userId !== loggedInUserId
+    ) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'You can only access your own salary structure.',
+          },
+        },
+        HttpStatus.FORBIDDEN,
+      );
+    }
     const isUserExist = await this.salaryService.isUserExist(userId);
 
     if (!isUserExist) {
@@ -200,6 +244,7 @@ export class SalaryController {
         HttpStatus.NOT_FOUND,
       );
     }
+
     const data = await this.salaryService.findOne(userId);
 
     return {
@@ -213,12 +258,7 @@ export class SalaryController {
   }
 
   @Post('/pay/:id')
-  @Roles(
-    UserRoles.SUPERADMIN,
-    UserRoles.ADMIN,
-    UserRoles.CLERK,
-    UserRoles.TEACHER,
-  )
+  @Roles(UserRoles.SUPERADMIN, UserRoles.ADMIN)
   async paySalary(@Param('id') id: string) {
     const isSalaryProcessed = await this.salaryService.isMonthlySalaryExist(id);
 
@@ -274,7 +314,7 @@ export class SalaryController {
   }
 
   @Post('/addSalaryAdjustment')
-  @Roles(UserRoles.SUPERADMIN, UserRoles.ADMIN, UserRoles.CLERK)
+  @Roles(UserRoles.SUPERADMIN, UserRoles.ADMIN)
   async addSalaryAdjustment(@Body() data: CreateSalaryAdjustmentDto) {
     const res = await this.salaryService.addSalaryAdjustment(data);
 
@@ -300,7 +340,7 @@ export class SalaryController {
   }
 
   @Patch(':id')
-  @Roles(UserRoles.SUPERADMIN, UserRoles.ADMIN, UserRoles.CLERK)
+  @Roles(UserRoles.SUPERADMIN, UserRoles.ADMIN)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update Salary Structure' })
   @ApiResponse({
@@ -346,7 +386,7 @@ export class SalaryController {
   }
 
   @Delete(':id')
-  @Roles(UserRoles.SUPERADMIN, UserRoles.ADMIN, UserRoles.CLERK)
+  @Roles(UserRoles.SUPERADMIN, UserRoles.ADMIN)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Delete Salary Structure' })
   @ApiResponse({
