@@ -41,7 +41,7 @@ model Users {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  leftAt   DateTime? @map("left_at")
+  leftAt DateTime? @map("left_at")
 
   //relations
   account Account? @relation(fields: [accountId], references: [id], onDelete: Cascade)
@@ -157,6 +157,9 @@ model Teachers {
 
   user Users @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  altPhone1 String? @map("alt_phone_1")
+  altPhone2 String? @map("alt_phone_2")
+
   //relations
   sections    Section[]
   timetables  Timetable[]
@@ -175,6 +178,8 @@ model Gurdians {
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")
 
+  phone String?
+
   user Users @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   //relations
@@ -190,6 +195,8 @@ model StudentGurdians {
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
+
+  isPrimary Boolean @default(false)
 
   //relations
   student Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
