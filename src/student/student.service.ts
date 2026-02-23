@@ -73,13 +73,13 @@ export class StudentService {
                 occupation: true,
                 type: true,
                 user: {
-                  select:{
+                  select: {
                     id: true,
                     name: true,
                     email: true,
                     address: true,
-                    leftAt: true
-                  }
+                    leftAt: true,
+                  },
                 },
               },
             },
@@ -329,6 +329,17 @@ export class StudentService {
           isPrimary,
         },
       });
+    });
+  }
+
+  async isStudentGurdianTypeExist(studentId: string, type: string) {
+    return await this.prisma.studentGurdians.findFirst({
+      where: {
+        studentId,
+        gurdian: {
+          type,
+        },
+      },
     });
   }
 }

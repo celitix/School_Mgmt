@@ -229,6 +229,24 @@ export class StudentController {
     description: 'Student Gurdians Created successfully',
   })
   async createGuardian(@Body() data: CreateStudentGurdianDto) {
+    const isStudentGurdianTypeExist =
+      await this.studentService.isStudentGurdianTypeExist(
+        data.studentId,
+        data.type,
+      );
+
+    if (isStudentGurdianTypeExist) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: `Gurdian with type ${data.type} already exist.`,
+          },
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
     const isCreate = await this.studentService.createGurdian(data);
 
     if (!isCreate) {
