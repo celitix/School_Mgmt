@@ -10,8 +10,11 @@ export class AuthService {
   constructor(private readonly prisma: PrismaService) {}
 
   async isPhoneExist(phone: string) {
-    return await this.prisma.users.findUnique({
-      where: { phone },
+    return await this.prisma.account.findFirst({
+      where: {
+        phone,
+        isActive: true,
+      },
     });
   }
 
@@ -44,12 +47,36 @@ export class AuthService {
   }
 
   async findUser(phone: string) {
-    return await this.prisma.users.findUnique({
+    return await this.prisma.account.findUnique({
       where: { phone },
       include: {
-        role: {
+        users: {
+          where: { leftAt: null },
           select: {
+            id: true,
+            role: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  async findAccountWithUsers(phone: string) {
+    return await this.prisma.account.findUnique({
+      where: { phone },
+      include: {
+        users: {
+          where: { leftAt: null },
+          select: {
+            id: true,
             name: true,
+            role: {
+              select: { name: true },
+            },
           },
         },
       },
@@ -57,7 +84,16 @@ export class AuthService {
   }
 
   async createUser(data: any) {
-    return await this.prisma.users.create({ data });
+    const { phone, ...rest } = data;
+    return await this.prisma.$transaction(async (tx) => {
+      const account = await tx.account.create({ data: { phone } });
+      return await tx.users.create({
+        data: {
+          ...rest,
+          accountId: account.id,
+        },
+      });
+    });
   }
 
   async seedRoles(data: string[]) {

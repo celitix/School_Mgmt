@@ -12,7 +12,6 @@ export class TeachersService {
       const user = await tx.users.create({
         data: {
           name,
-          phone,
           address,
           email,
           roleId: 3,
@@ -29,7 +28,7 @@ export class TeachersService {
   }
 
   async isTeacherExist(phone: string) {
-    return await this.prisma.users.findUnique({ where: { phone } });
+    return await this.prisma.account.findUnique({ where: { phone } });
   }
   async isTeacherExistById(id: string) {
     return await this.prisma.teachers.findUnique({
@@ -45,7 +44,7 @@ export class TeachersService {
       this.prisma.teachers.findMany({
         where: {
           user: {
-            isActive: true,
+            leftAt: null,
           },
         },
         select: {
@@ -58,7 +57,11 @@ export class TeachersService {
               id: true,
               name: true,
               email: true,
-              phone: true,
+              account: {
+                select: {
+                  phone: true,
+                },
+              },
             },
           },
         },
@@ -71,7 +74,7 @@ export class TeachersService {
       this.prisma.teachers.count({
         where: {
           user: {
-            isActive: true,
+            leftAt: null,
           },
         },
       }),
@@ -95,7 +98,7 @@ export class TeachersService {
       where: {
         id,
         user: {
-          isActive: true,
+          leftAt: null,
         },
       },
       include: {
@@ -133,7 +136,6 @@ export class TeachersService {
     return await this.prisma.users.update({
       where: { id },
       data: {
-        isActive: false,
         leftAt: new Date(),
       },
     });

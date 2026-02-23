@@ -10,10 +10,27 @@ export class StudentService {
   async create(data: CreateStudentDto) {
     const { name, phone, address, email, ...rest } = data;
     return await this.prisma.$transaction(async (tx) => {
+      const isPhoneExist = await this.prisma.account.findUnique({
+        where: {
+          phone,
+        },
+      });
+      let accountId: string;
+
+      if (isPhoneExist) {
+        accountId = isPhoneExist.id;
+      } else {
+        const account = await tx.account.create({
+          data: {
+            phone,
+          },
+        });
+        accountId = account.id;
+      }
       const user = await tx.users.create({
         data: {
           name,
-          phone,
+          accountId,
           address,
           email,
           roleId: 3,
@@ -30,7 +47,7 @@ export class StudentService {
   }
 
   async isStudentExist(phone: string) {
-    return await this.prisma.users.findUnique({ where: { phone } });
+    return await this.prisma.account.findUnique({ where: { phone } });
   }
 
   async isStudentExistById(id: string) {
@@ -61,7 +78,7 @@ export class StudentService {
       this.prisma.student.findMany({
         where: {
           user: {
-            isActive: true,
+            leftAt: null,
           },
         },
         select: {
@@ -75,7 +92,11 @@ export class StudentService {
               id: true,
               name: true,
               email: true,
-              phone: true,
+              account: {
+                select: {
+                  phone: true,
+                },
+              },
             },
           },
           // gurdians: {
@@ -100,7 +121,7 @@ export class StudentService {
       this.prisma.student.count({
         where: {
           user: {
-            isActive: true,
+            leftAt: null,
           },
         },
       }),
@@ -124,7 +145,7 @@ export class StudentService {
       where: {
         id,
         user: {
-          isActive: true,
+          leftAt: null,
         },
       },
       include: {
@@ -193,22 +214,46 @@ export class StudentService {
     });
   }
   async remove(id: string) {
-    return await this.prisma.users.update({
-      where: { id },
-      data: {
-        isActive: false,
-        leftAt: new Date(),
-      },
+    return await this.prisma.$transaction(async (tx) => {
+      // await tx.account.update({
+      //   where: { userId: id },
+      //   data: {
+      //     isActive: false,
+      //   },
+      // })
+      return await tx.users.update({
+        where: { id },
+        data: {
+          leftAt: new Date(),
+        },
+      });
     });
   }
 
   async createGurdian(data: CreateStudentGurdianDto) {
     const { name, phone, address, email, ...rest } = data;
     return await this.prisma.$transaction(async (tx) => {
+      const isPhoneExist = await this.prisma.account.findUnique({
+        where: {
+          phone,
+        },
+      });
+      let accountId: string;
+
+      if (isPhoneExist) {
+        accountId = isPhoneExist.id;
+      } else {
+        const account = await tx.account.create({
+          data: {
+            phone,
+          },
+        });
+        accountId = account.id;
+      }
       const user = await tx.users.create({
         data: {
           name,
-          phone,
+          accountId,
           address,
           email,
           roleId: 4,

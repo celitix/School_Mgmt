@@ -54,7 +54,7 @@ export class AuthController {
   async sendOtp(@Body() data: SendOtpDto) {
     const isPhoneExist = await this.authService.isPhoneExist(data.phone);
 
-    if (!isPhoneExist) {
+    if (!isPhoneExist || !isPhoneExist.isActive) {
       throw new HttpException(
         {
           isSuccess: false,
@@ -167,7 +167,7 @@ export class AuthController {
       );
     }
 
-    const isOtpSame = compareValue(data.otp, isOtpExist.otp);
+    const isOtpSame = await compareValue(data.otp, isOtpExist.otp);
 
     if (!isOtpSame) {
       await this.authService.addAttempt(data.otpId);
@@ -186,7 +186,7 @@ export class AuthController {
     const user = await this.authService.findUser(data.phone);
 
     const token = generateAccessToken(
-      { id: user?.id!, role: user?.role?.name! },
+      { id: user?.users[0]?.id!, role: user?.users[0]?.role?.name! },
       this.config.get('jwt.expiresIn') as number,
       this.config.get('jwt.secret') as string,
     );
@@ -195,7 +195,7 @@ export class AuthController {
       isSuccess: true,
       data: {
         token,
-        role: user?.role?.name,
+        role: user?.users[0]?.role?.name!,
         message: 'Otp verified successfully',
       },
       error: null,
