@@ -9,12 +9,12 @@ export class CreateStudentDto {
   @IsString()
   name: string;
 
-  @ApiProperty({
-    example: '96XXXXXXXX',
-    description: 'phone',
-  })
-  @IsString()
-  phone: string;
+  // @ApiProperty({
+  //   example: '96XXXXXXXX',
+  //   description: 'phone',
+  // })
+  // @IsString()
+  // phone: string;
 
   @ApiProperty({
     example: 'abc@gmail',
