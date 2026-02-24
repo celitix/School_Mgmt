@@ -90,6 +90,20 @@ export class SalaryController {
     description: 'Monthly Salary processed successfully',
   })
   async processMontlySalary(@Param('userId') userId: string) {
+    const isSalarySturctureExist = await this.salaryService.findOne(userId);
+
+    if (!isSalarySturctureExist) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'Salary Structure not found.',
+          },
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
     const isSalaryProcessed =
       await this.salaryService.isSalaryProcessed(userId);
 
