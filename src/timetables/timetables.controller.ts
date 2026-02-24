@@ -76,7 +76,7 @@ export class TimetablesController {
           isSuccess: false,
           data: null,
           error: {
-            message: 'Section not found.',
+            message: 'Class not found.',
           },
         },
         HttpStatus.NOT_FOUND,

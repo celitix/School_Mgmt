@@ -62,6 +62,12 @@ export class ClassAndSectionsService {
     });
   }
 
+  async isSectionBelongsToClass(sectionId: string, classId: string) {
+    return await this.prisma.section.findUnique({
+      where: { classId, id: sectionId },
+    });
+  }
+
   async getAllClass() {
     return await this.prisma.class.findMany();
   }

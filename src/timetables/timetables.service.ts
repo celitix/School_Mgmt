@@ -126,10 +126,10 @@ export class TimetablesService {
   }
 
   async isClassExist(classId: string) {
-    return await this.classService.isClassExist(classId);
+    return await this.classService.isClassExistById(classId);
   }
 
   async isSectionExist(classId: string, sectionId: string) {
-    return await this.classService.isSectionExist(classId, sectionId);
+    return await this.classService.isSectionBelongsToClass(classId, sectionId);
   }
 }
