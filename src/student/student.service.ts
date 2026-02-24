@@ -191,6 +191,17 @@ export class StudentService {
             toYear: true,
           },
         },
+        section: {
+          select: {
+            id: true,
+            name: true,
+            class: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
         gurdians: {
           select: {
             id: true,
@@ -199,7 +210,21 @@ export class StudentService {
               select: {
                 id: true,
                 occupation: true,
-                user: true,
+                type: true,
+                user: {
+                  select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    address: true,
+                    leftAt: true,
+                    account: {
+                      select: {
+                        phone: true,
+                      },
+                    },
+                  },
+                },
               },
             },
           },

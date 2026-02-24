@@ -118,7 +118,7 @@ export class StudentController {
     description: 'Student fetched successfully',
   })
   async findOne(@Param('id') id: string) {
-    const isStudentExist = await this.studentService.isStudentExistById(id);
+    const isStudentExist = await this.studentService.findOne(id);
 
     if (!isStudentExist) {
       throw new HttpException(

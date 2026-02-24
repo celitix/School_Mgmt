@@ -105,7 +105,7 @@ export class TeachersController {
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    const isTeacherExist = await this.teachersService.isTeacherExistById(id);
+    const isTeacherExist = await this.teachersService.findOne(id);
     if (!isTeacherExist) {
       throw new HttpException(
         {
