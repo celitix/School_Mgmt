@@ -32,3 +32,10 @@ export class CreateSalaryAdjustmentDto {
   @IsInt()
   amount: number;
 }
+
+export class CreateSalaryAdjustmentBulkDto {
+  @ApiProperty({
+    type: [CreateSalaryAdjustmentDto],
+  })
+  data: CreateSalaryAdjustmentDto[];
+}

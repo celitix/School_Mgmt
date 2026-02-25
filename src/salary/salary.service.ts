@@ -3,7 +3,10 @@ import { CreateSalaryStructureDto } from './dto/create-salary.dto';
 import { UpdateSalaryDto } from './dto/update-salary.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AdjustementType, SalaryPaymentEnum } from 'generated/prisma/enums';
-import { CreateSalaryAdjustmentDto } from './dto/salary-adjusment.dto';
+import {
+  CreateSalaryAdjustmentBulkDto,
+  CreateSalaryAdjustmentDto,
+} from './dto/salary-adjusment.dto';
 
 @Injectable()
 export class SalaryService {
@@ -127,21 +130,21 @@ export class SalaryService {
     });
     return !!existingSalary;
   }
-  async salaryAdjustment(
-    salaryId: string,
-    title: string,
-    type: AdjustementType,
-    amount: number,
-  ) {
-    return await this.prisma.salaryAdjustment.create({
-      data: {
-        title,
-        type,
-        amount,
-        salaryId,
-      },
-    });
-  }
+  // async salaryAdjustment(
+  //   salaryId: string,
+  //   title: string,
+  //   type: AdjustementType,
+  //   amount: number,
+  // ) {
+  //   return await this.prisma.salaryAdjustment.create({
+  //     data: {
+  //       title,
+  //       type,
+  //       amount,
+  //       salaryId,
+  //     },
+  //   });
+  // }
 
   async getMonthlySalary(userId: string, month: number, year: number) {
     return await this.prisma.salaryPayment.findFirst({
@@ -159,6 +162,11 @@ export class SalaryService {
   async addSalaryAdjustment(data: CreateSalaryAdjustmentDto) {
     return await this.prisma.salaryAdjustment.create({
       data,
+    });
+  }
+  async addSalaryAdjustmentBulk(data: CreateSalaryAdjustmentBulkDto) {
+    return await this.prisma.salaryAdjustment.createMany({
+      data: data.data,
     });
   }
 

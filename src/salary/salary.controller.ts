@@ -26,7 +26,10 @@ import { UserRoles } from 'src/interfaces/user.interfaces';
 import type { IUserTokenInfo } from 'src/interfaces/user.interfaces';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { RolesGuard } from 'src/guards/roles.guard';
-import { CreateSalaryAdjustmentDto } from './dto/salary-adjusment.dto';
+import {
+  CreateSalaryAdjustmentBulkDto,
+  CreateSalaryAdjustmentDto,
+} from './dto/salary-adjusment.dto';
 import { UserInfo } from 'src/decorators/user.decorator';
 
 @Controller('salary')
@@ -331,6 +334,43 @@ export class SalaryController {
   @Roles(UserRoles.SUPERADMIN, UserRoles.ADMIN)
   async addSalaryAdjustment(@Body() data: CreateSalaryAdjustmentDto) {
     const res = await this.salaryService.addSalaryAdjustment(data);
+
+    if (!res) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'Something went wrong.',
+          },
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    return {
+      isSuccess: false,
+      data: {
+        message: 'Salary Adjustment added successfully',
+      },
+      error: null,
+    };
+  }
+  @Post('/addSalaryAdjustmentBulk')
+  @Roles(UserRoles.SUPERADMIN, UserRoles.ADMIN)
+  async addSalaryAdjustmentBulk(@Body() data: CreateSalaryAdjustmentBulkDto) {
+    if (data.data.length == 0) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'No data found.',
+          },
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const res = await this.salaryService.addSalaryAdjustmentBulk(data);
 
     if (!res) {
       throw new HttpException(
