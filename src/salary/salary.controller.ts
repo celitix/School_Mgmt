@@ -308,7 +308,6 @@ export class SalaryController {
     }
 
     const isMontlySalaryPaid = await this.salaryService.isMontlySalaryPaid(id);
-
     if (isMontlySalaryPaid) {
       throw new HttpException(
         {

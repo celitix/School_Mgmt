@@ -147,7 +147,6 @@ export class SalaryService {
   // }
 
   async getMonthlySalary(userId: string, month: number, year: number) {
-    console.log(userId, month, year);
     return await this.prisma.salaryPayment.findFirst({
       where: {
         userId,
@@ -313,7 +312,7 @@ export class SalaryService {
   }
 
   async isMontlySalaryPaid(id: string) {
-    return await this.prisma.salaryPayment.findUnique({
+    const data = await this.prisma.salaryPayment.findUnique({
       where: {
         id,
       },
@@ -321,5 +320,7 @@ export class SalaryService {
         paidAt: true,
       },
     });
+
+    return data?.paidAt ? true : false;
   }
 }
