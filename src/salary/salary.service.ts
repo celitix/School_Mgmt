@@ -147,6 +147,7 @@ export class SalaryService {
   // }
 
   async getMonthlySalary(userId: string, month: number, year: number) {
+    console.log(userId, month, year);
     return await this.prisma.salaryPayment.findFirst({
       where: {
         userId,
@@ -165,21 +166,62 @@ export class SalaryService {
     });
   }
   async addSalaryAdjustmentBulk(data: CreateSalaryAdjustmentBulkDto) {
-    return await this.prisma.salaryAdjustment.createMany({
-      data: data.data,
+    return await this.prisma.$transaction(async (tx) => {
+      const createdAdjustments = await tx.salaryAdjustment.createMany({
+        data: data.data,
+      });
+      const salaryIds = [...new Set(data.data.map((a) => a.salaryId))];
+      for (const salaryId of salaryIds) {
+        const adjustments = await tx.salaryAdjustment.findMany({
+          where: { salaryId },
+        });
+        let allowanceTotal = 0;
+        let deductionTotal = 0;
+        for (const adjustment of adjustments) {
+          if (adjustment.type === AdjustementType.ALLOWANCE) {
+            allowanceTotal += adjustment.amount;
+          } else {
+            deductionTotal += adjustment.amount;
+          }
+
+          const salary = await tx.salaryPayment.findUnique({
+            where: { id: salaryId },
+          });
+
+          if (!salary) {
+            continue;
+          }
+
+          const grossSalary = salary.basic + allowanceTotal;
+          const netSalary = grossSalary - deductionTotal;
+
+          await tx.salaryPayment.update({
+            where: { id: salaryId },
+            data: {
+              grossSalary,
+              netSalary,
+              variableDeductions: deductionTotal,
+            },
+          });
+          await tx.salaryPayment.update({
+            where: { id: salaryId },
+            data: {
+              grossSalary,
+              netSalary,
+              variableDeductions: deductionTotal,
+            },
+          });
+        }
+
+        return createdAdjustments;
+      }
     });
   }
 
   async markSalaryAsPay(id: string) {
-    let allowanceTotal = 0;
-    let deductionTotal = 0;
-
     const salary = await this.prisma.salaryPayment.findFirst({
       where: {
         id,
-      },
-      include: {
-        adjustments: true,
       },
     });
 
@@ -187,26 +229,12 @@ export class SalaryService {
       return false;
     }
 
-    for (const adjustment of salary.adjustments) {
-      if (adjustment.type === AdjustementType.ALLOWANCE) {
-        allowanceTotal += adjustment.amount;
-      } else {
-        deductionTotal += adjustment.amount;
-      }
-    }
-
-    const grossSalary = salary.basic + allowanceTotal;
-    const netSalary = grossSalary - deductionTotal;
-
     await this.prisma.salaryPayment.update({
       where: {
         id,
       },
       data: {
-        grossSalary,
-        netSalary,
         paidAt: new Date(),
-        variableDeductions: deductionTotal,
         status: SalaryPaymentEnum.PAID,
       },
     });

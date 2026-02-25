@@ -187,6 +187,21 @@ export class SalaryController {
         HttpStatus.FORBIDDEN,
       );
     }
+
+    const isUserExist = await this.salaryService.isUserExist(userId);
+
+    if (!isUserExist) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'User not found.',
+          },
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
     const data = await this.salaryService.getMonthlySalary(userId, month, year);
     if (!data) {
       throw new HttpException(
