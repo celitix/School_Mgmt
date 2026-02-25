@@ -253,6 +253,7 @@ model SalaryPayment {
 
   fixedDeductions    Float @default(0)
   variableDeductions Float @default(0)
+  variableAllowances Float @default(0)
   bonus              Float @default(0)
 
   grossSalary Float

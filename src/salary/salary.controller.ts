@@ -363,7 +363,7 @@ export class SalaryController {
       );
     }
     return {
-      isSuccess: false,
+      isSuccess: true,
       data: {
         message: 'Salary Adjustment added successfully',
       },
@@ -400,7 +400,7 @@ export class SalaryController {
       );
     }
     return {
-      isSuccess: false,
+      isSuccess: true,
       data: {
         message: 'Salary Adjustment added successfully',
       },

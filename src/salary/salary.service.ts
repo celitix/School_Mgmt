@@ -165,56 +165,127 @@ export class SalaryService {
       data,
     });
   }
+  // async addSalaryAdjustmentBulk(data: CreateSalaryAdjustmentBulkDto) {
+  //   return await this.prisma.$transaction(async (tx) => {
+  //     const createdAdjustments = await tx.salaryAdjustment.createMany({
+  //       data: data.data,
+  //     });
+  //     const salaryIds = [...new Set(data.data.map((a) => a.salaryId))];
+  //     for (const salaryId of salaryIds) {
+  //       const adjustments = await tx.salaryAdjustment.findMany({
+  //         where: { salaryId },
+  //       });
+
+  //       console.log('adjustments', adjustments);
+  //       let allowanceTotal = 0;
+  //       let deductionTotal = 0;
+  //       for (const adjustment of adjustments) {
+  //         if (adjustment.type === AdjustementType.ALLOWANCE) {
+  //           allowanceTotal += adjustment.amount;
+  //         } else {
+  //           deductionTotal += adjustment.amount;
+  //         }
+
+  //         const salary = await tx.salaryPayment.findUnique({
+  //           where: { id: salaryId },
+  //         });
+
+  //         if (!salary) {
+  //           continue;
+  //         }
+
+  //         const grossSalary = salary.grossSalary + allowanceTotal;
+  //         const netSalary = grossSalary - deductionTotal;
+  //         console.log(
+  //           'grossSalary',
+  //           grossSalary,
+  //           'deductionTotal',
+  //           deductionTotal,
+  //           'netSalary',
+  //           netSalary,
+  //           'salary.basic',
+  //           salary.basic,
+  //         );
+
+  //         console.log(
+  //           'allowanceTotal',
+  //           allowanceTotal,
+  //           'deductionTotal',
+  //           deductionTotal,
+  //         );
+
+  //         await tx.salaryPayment.update({
+  //           where: { id: salaryId },
+  //           data: {
+  //             grossSalary,
+  //             netSalary,
+  //             variableDeductions: deductionTotal,
+  //             variableAllowances: allowanceTotal,
+  //           },
+  //         });
+  //       }
+
+  //       return createdAdjustments;
+  //     }
+  //   });
+  // }
+
   async addSalaryAdjustmentBulk(data: CreateSalaryAdjustmentBulkDto) {
     return await this.prisma.$transaction(async (tx) => {
-      const createdAdjustments = await tx.salaryAdjustment.createMany({
+      await tx.salaryAdjustment.createMany({
         data: data.data,
       });
+
       const salaryIds = [...new Set(data.data.map((a) => a.salaryId))];
+
       for (const salaryId of salaryIds) {
+        const salary = await tx.salaryPayment.findUnique({
+          where: { id: salaryId },
+        });
+
+        if (!salary) continue;
+
         const adjustments = await tx.salaryAdjustment.findMany({
           where: { salaryId },
         });
+
         let allowanceTotal = 0;
         let deductionTotal = 0;
-        for (const adjustment of adjustments) {
-          if (adjustment.type === AdjustementType.ALLOWANCE) {
-            allowanceTotal += adjustment.amount;
+
+        for (const adj of adjustments) {
+          if (adj.type === AdjustementType.ALLOWANCE) {
+            allowanceTotal += adj.amount;
           } else {
-            deductionTotal += adjustment.amount;
+            deductionTotal += adj.amount;
           }
-
-          const salary = await tx.salaryPayment.findUnique({
-            where: { id: salaryId },
-          });
-
-          if (!salary) {
-            continue;
-          }
-
-          const grossSalary = salary.basic + allowanceTotal;
-          const netSalary = grossSalary - deductionTotal;
-
-          await tx.salaryPayment.update({
-            where: { id: salaryId },
-            data: {
-              grossSalary,
-              netSalary,
-              variableDeductions: deductionTotal,
-            },
-          });
-          await tx.salaryPayment.update({
-            where: { id: salaryId },
-            data: {
-              grossSalary,
-              netSalary,
-              variableDeductions: deductionTotal,
-            },
-          });
         }
 
-        return createdAdjustments;
+        /**
+         * IMPORTANT:
+         * Recalculate from base salary structure
+         * NOT from already modified grossSalary
+         */
+        const baseGross =
+          salary.basic +
+          (salary.hra || 0) +
+          (salary.allowance || 0) +
+          (salary.bonus || 0);
+
+        const grossSalary = baseGross + allowanceTotal;
+        const netSalary = grossSalary - salary.fixedDeductions - deductionTotal;
+
+        await tx.salaryPayment.update({
+          where: { id: salaryId },
+          data: {
+            grossSalary,
+            netSalary,
+            variableAllowances: allowanceTotal,
+            variableDeductions: deductionTotal,
+          },
+        });
       }
+
+      return { success: true };
     });
   }
 
