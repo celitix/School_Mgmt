@@ -122,6 +122,21 @@ export class ClassAndSectionsController {
     };
   }
 
+  @Get('/section/:sectionId/student')
+  async getStudentBySection(@Param('sectionId') sectionId: string) {
+    const getStudentBySection =
+      await this.classAndSectionsService.getStudentBySection(sectionId);
+
+    return {
+      isSuccess: true,
+      data: {
+        students: getStudentBySection,
+        message: 'Student Fetched successfully',
+      },
+      error: null,
+    };
+  }
+
   @Post('/toggleSubjectAssignment')
   async toggleSubjectAssignment(@Body() data: AssignSubjectToClassDto) {
     const isToggle =

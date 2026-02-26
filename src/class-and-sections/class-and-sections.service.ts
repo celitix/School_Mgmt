@@ -141,6 +141,20 @@ export class ClassAndSectionsService {
       },
     });
   }
+
+  async getStudentBySection(sectionId: string) {
+    return await this.prisma.section.findMany({
+      where: { id: sectionId },
+      include: {
+        class: true,
+        students: {
+          include: {
+            user: true,
+          },
+        },
+      },
+    });
+  }
 }
 
 function generateSections(noOfSections: number): string[] {
