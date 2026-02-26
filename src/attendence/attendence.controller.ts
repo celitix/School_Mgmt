@@ -41,6 +41,56 @@ export class AttendenceController {
     description: 'Attendence created successfully',
   })
   async create(@Body() data: CreateAttendenceDto) {
+    const isStudentExist = await this.attendenceService.isStudentExist(
+      data.studentId,
+    );
+
+    if (!isStudentExist) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'Student does not exist.',
+          },
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const isClassExist = await this.attendenceService.isClassExist(
+      data.classId,
+    );
+
+    if (!isClassExist) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'Class does not exist.',
+          },
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const isSectionExist = await this.attendenceService.isSectionExist(
+      data.sectionId,
+    );
+
+    if (!isSectionExist) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'Section does not exist.',
+          },
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
     const isCreate = await this.attendenceService.create(data);
 
     if (!isCreate) {

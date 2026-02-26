@@ -117,16 +117,16 @@ export class SubjectsController {
   async update(@Param('id') id: string, @Body() data: UpdateSubjectDto) {
     const isExist = await this.subjectsService.findOne(id);
 
-    if (!isExist) {
+    if (isExist && isExist.id !== id) {
       throw new HttpException(
         {
           isSuccess: false,
           data: null,
           error: {
-            message: 'Subject not found.',
+            message: 'Subject already exists.',
           },
         },
-        HttpStatus.BAD_REQUEST,
+        HttpStatus.CONFLICT,
       );
     }
 
@@ -141,7 +141,7 @@ export class SubjectsController {
             message: 'Something went wrong.',
           },
         },
-        HttpStatus.BAD_REQUEST,
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
 

@@ -37,9 +37,7 @@ export class AttendenceService {
 
     return await this.prisma.attendance.findMany({
       where,
-      include: {
-       
-      },
+      include: {},
       orderBy: { date: 'asc' },
     });
   }
@@ -54,5 +52,17 @@ export class AttendenceService {
 
   remove(id: string) {
     return `This action removes a #${id} attendence`;
+  }
+
+  async isStudentExist(studentId: string) {
+    return await this.prisma.student.findUnique({ where: { id: studentId } });
+  }
+
+  async isClassExist(classId: string) {
+    return await this.prisma.section.findUnique({ where: { id: classId } });
+  }
+
+  async isSectionExist(sectionId: string) {
+    return await this.prisma.section.findUnique({ where: { id: sectionId } });
   }
 }
