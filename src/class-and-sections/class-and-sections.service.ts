@@ -143,17 +143,25 @@ export class ClassAndSectionsService {
   }
 
   async getStudentBySection(sectionId: string) {
-    return await this.prisma.section.findMany({
+    const data = await this.prisma.section.findFirst({
       where: { id: sectionId },
       include: {
         class: true,
         students: {
-          include: {
-            user: true,
+          select: {
+            id: true,
+            user: {
+              select: {
+                name: true,
+              },
+            },
           },
         },
       },
     });
+
+    const studentList = data?.students;
+    return studentList;
   }
 }
 

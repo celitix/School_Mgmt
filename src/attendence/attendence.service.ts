@@ -59,7 +59,7 @@ export class AttendenceService {
   }
 
   async isClassExist(classId: string) {
-    return await this.prisma.section.findUnique({ where: { id: classId } });
+    return await this.prisma.class.findUnique({ where: { id: classId } });
   }
 
   async isSectionExist(sectionId: string) {
