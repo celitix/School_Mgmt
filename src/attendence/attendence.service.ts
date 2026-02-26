@@ -65,4 +65,14 @@ export class AttendenceService {
   async isSectionExist(sectionId: string) {
     return await this.prisma.section.findUnique({ where: { id: sectionId } });
   }
+
+  async isAttendenceMarkforDate(
+    classId: string,
+    sectionId: string,
+    date: string,
+  ) {
+    return await this.prisma.attendance.findFirst({
+      where: { classId, sectionId, date: new Date(date) },
+    });
+  }
 }

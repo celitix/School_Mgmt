@@ -91,6 +91,26 @@ export class AttendenceController {
         HttpStatus.NOT_FOUND,
       );
     }
+
+    const isAttendenceMarkforDate =
+      await this.attendenceService.isAttendenceMarkforDate(
+        data.classId,
+        data.sectionId,
+        data.date,
+      );
+
+    if (isAttendenceMarkforDate) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'Attendence already marked for this date.',
+          },
+        },
+        HttpStatus.CONFLICT,
+      );
+    }
     const isCreate = await this.attendenceService.create(data);
 
     if (!isCreate) {

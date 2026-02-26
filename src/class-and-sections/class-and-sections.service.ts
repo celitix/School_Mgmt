@@ -163,6 +163,15 @@ export class ClassAndSectionsService {
     const studentList = data?.students;
     return studentList;
   }
+
+  async isTeacherAssignedOrFree(teacherId: string) {
+    return await this.prisma.section.findFirst({
+      where: { supervisorId: teacherId },
+    });
+  }
+  async isTeacherExist(teacherId: string) {
+    return await this.prisma.teachers.findUnique({ where: { id: teacherId } });
+  }
 }
 
 function generateSections(noOfSections: number): string[] {

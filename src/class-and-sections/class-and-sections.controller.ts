@@ -72,6 +72,23 @@ export class ClassAndSectionsController {
 
   @Post('/create-section')
   async createSection(@Body() data: CreateSectionDto) {
+    const isTeacherAssignToSection =
+      await this.classAndSectionsService.isTeacherAssignedOrFree(
+        data.supervisorId,
+      );
+
+    if (isTeacherAssignToSection) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'Teacher already assign to other section.',
+          },
+        },
+        HttpStatus.CONFLICT,
+      );
+    }
     const isCreate = await this.classAndSectionsService.createSection(data);
 
     if (!isCreate) {
@@ -197,6 +214,37 @@ export class ClassAndSectionsController {
     @Param('teacherId') teacherId: string,
     @Param('sectionId') sectionId: string,
   ) {
+    const isTeacherExist =
+      await this.classAndSectionsService.isTeacherExist(teacherId);
+
+    if (!isTeacherExist) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'Teacher not found.',
+          },
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const isTeacherAssignedOrFree =
+      await this.classAndSectionsService.isTeacherAssignedOrFree(teacherId);
+
+    if (isTeacherAssignedOrFree) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'Teacher already assign to other section.',
+          },
+        },
+        HttpStatus.CONFLICT,
+      );
+    }
     const isTeacherAssignToSection =
       await this.classAndSectionsService.isTeacherAssignToSection(
         teacherId,
