@@ -70,9 +70,10 @@ export class AttendenceService {
     classId: string,
     sectionId: string,
     date: string,
+    studentId: string,
   ) {
     return await this.prisma.attendance.findFirst({
-      where: { classId, sectionId, date: new Date(date) },
+      where: { classId, sectionId, date: new Date(date), studentId },
     });
   }
 }

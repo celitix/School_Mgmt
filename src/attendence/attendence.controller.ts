@@ -97,6 +97,7 @@ export class AttendenceController {
         data.classId,
         data.sectionId,
         data.date,
+        data.studentId,
       );
 
     if (isAttendenceMarkforDate) {
