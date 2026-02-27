@@ -38,22 +38,39 @@ export class TimetablesService {
     page: number = 1,
     limit: number = 10,
     classId: string,
+    classSectionId?: string,
   ) {
+    let where: any = {
+      classId,
+    };
+
+    if (classSectionId) {
+      where.sectionId = classSectionId;
+    }
     const [data, total] = await Promise.all([
       this.prisma.timetable.findMany({
-        where: {
-          classId,
-        },
+        where,
         include: {
           timeSlot: true,
+          teacher: {
+            select: {
+              id: true,
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
+          section: true,
+          subject: true,
         },
         skip: (page - 1) * limit,
         take: limit,
       }),
       this.prisma.timetable.count({
-        where: {
-          classId,
-        },
+        where,
       }),
     ]);
 

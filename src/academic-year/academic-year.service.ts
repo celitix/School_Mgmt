@@ -15,8 +15,8 @@ export class AcademicYearService {
     return await this.prisma.academicYear.findMany();
   }
 
-  async findOne(id: number) {
-    return `This action returns a #${id} academicYear`;
+  async findOne(id: string) {
+    return await this.prisma.academicYear.findUnique({ where: { id } });
   }
 
   async update(id: string, data: UpdateAcademicYearDto) {

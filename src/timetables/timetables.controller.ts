@@ -196,8 +196,10 @@ export class TimetablesController {
   @Get('/:classId')
   @ApiQuery({ name: 'page', required: true, example: '1' })
   @ApiQuery({ name: 'limit', required: true, example: '10' })
+  @ApiQuery({ name: 'classSectionId', required: false })
   async findAllTimeTables(
     @Param('classId') classId: string,
+    @Query('classSectionId') classSectionId: string,
     @Query('page') page: number,
     @Query('limit') limit: number,
   ) {
@@ -205,6 +207,7 @@ export class TimetablesController {
       page,
       limit,
       classId,
+      classSectionId,
     );
 
     return {

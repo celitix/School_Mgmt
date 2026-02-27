@@ -100,10 +100,10 @@ export class AcademicYearController {
     };
   }
 
-  @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return this.academicYearService.findOne(+id);
-  }
+  // @Get(':id')
+  // async findOne(@Param('id') id: string) {
+  //   return this.academicYearService.findOne(id);
+  // }
 
   @Patch(':id')
   @Roles(UserRoles.SUPERADMIN, UserRoles.ADMIN, UserRoles.CLERK)
@@ -114,6 +114,20 @@ export class AcademicYearController {
     description: 'Academic year updated successfully',
   })
   async update(@Param('id') id: string, @Body() data: UpdateAcademicYearDto) {
+    const isAcademicYearExist = await this.academicYearService.findOne(id);
+
+    if (!isAcademicYearExist) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'Academic year does not exist.',
+          },
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
     const isUpdated = await this.academicYearService.update(id, data);
 
     if (!isUpdated) {
@@ -147,6 +161,20 @@ export class AcademicYearController {
     description: 'Academic year deleted successfully',
   })
   async remove(@Param('id') id: string) {
+    const isAcademicYearExist = await this.academicYearService.findOne(id);
+
+    if (!isAcademicYearExist) {
+      throw new HttpException(
+        {
+          isSuccess: false,
+          data: null,
+          error: {
+            message: 'Academic year does not exist.',
+          },
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
     const isDeleted = await this.academicYearService.remove(id);
 
     if (!isDeleted) {
