@@ -65,6 +65,7 @@ export class TimetablesService {
           },
           section: true,
           subject: true,
+          class: true,
         },
         skip: (page - 1) * limit,
         take: limit,
