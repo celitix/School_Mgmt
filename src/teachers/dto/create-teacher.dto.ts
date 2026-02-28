@@ -66,6 +66,7 @@ export class CreateTeacherDto {
     required: false,
   })
   @IsString()
+  @IsOptional()
   altPhone1?: string;
 
   @ApiProperty({
@@ -74,5 +75,6 @@ export class CreateTeacherDto {
     required: false,
   })
   @IsString()
+  @IsOptional()
   altPhone2?: string;
 }
