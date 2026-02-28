@@ -63,6 +63,26 @@ export class SalaryService {
     return await this.prisma.salaryStructure.findUnique({ where: { id } });
   }
 
+  async isCurrentSalaryStructureExist(userId: string) {
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    const salaryStructure = await this.prisma.salaryStructure.findFirst({
+      where: {
+        userId,
+        effectiveFrom: {
+          lte: monthEnd,
+        },
+        OR: [{ effectiveTo: null }, { effectiveTo: { gte: monthStart } }],
+      },
+      orderBy: {
+        effectiveFrom: 'desc',
+      },
+    });
+
+    return !!salaryStructure;
+  }
+
   async processMontlySalary(userId: string) {
     const now = new Date();
 
@@ -80,6 +100,8 @@ export class SalaryService {
         effectiveFrom: 'desc',
       },
     });
+
+    if (!salaryStructure) return false;
 
     const grossSalary =
       salaryStructure?.basicSalary! +

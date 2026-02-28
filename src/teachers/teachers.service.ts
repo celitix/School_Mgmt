@@ -61,6 +61,11 @@ export class TeachersService {
           enrollmentNo: true,
           joiningDate: true,
           exoperience: true,
+          sections: {
+            select: {
+              id: true,
+            },
+          },
           user: {
             select: {
               id: true,
@@ -84,13 +89,21 @@ export class TeachersService {
         where: {
           user: {
             leftAt: null,
+            account: {
+              isActive: true,
+            },
           },
         },
       }),
     ]);
 
+    const formattedTeachers = teachers.map(({ sections, ...teacher }) => ({
+      ...teacher,
+      isAssigned: sections.length > 0,
+    }));
+
     return {
-      data: teachers,
+      data: formattedTeachers,
       meta: {
         total,
         page,
