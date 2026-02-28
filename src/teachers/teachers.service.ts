@@ -46,16 +46,17 @@ export class TeachersService {
   }
   async findAll(page: number, limit: number) {
     const skip = (page - 1) * limit;
+    const whereCondition = {
+      user: {
+        leftAt: null,
+        account: {
+          isActive: true,
+        },
+      },
+    };
     const [teachers, total] = await Promise.all([
       this.prisma.teachers.findMany({
-        where: {
-          user: {
-            leftAt: null,
-            account: {
-              isActive: true,
-            },
-          },
-        },
+        where: whereCondition,
         select: {
           id: true,
           enrollmentNo: true,
@@ -86,20 +87,39 @@ export class TeachersService {
         },
       }),
       this.prisma.teachers.count({
-        where: {
-          user: {
-            leftAt: null,
-            account: {
-              isActive: true,
-            },
-          },
-        },
+        where: whereCondition,
       }),
     ]);
+
+    const userIds = teachers.map((t) => t.user.id);
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+    const salaryPayments = await this.prisma.salaryStructure.findMany({
+      where: {
+        userId: { in: userIds },
+        effectiveFrom: {
+          lte: monthEnd,
+        },
+        OR: [{ effectiveTo: null }, { effectiveTo: { gte: monthStart } }],
+      },
+      orderBy: {
+        effectiveFrom: 'desc',
+      },
+      select: {
+        userId: true,
+      },
+    });
+
+    const processedUserIds = new Set(
+      salaryPayments?.map((payment) => payment.userId),
+    );
 
     const formattedTeachers = teachers.map(({ sections, ...teacher }) => ({
       ...teacher,
       isAssigned: sections.length > 0,
+      isMonthlySalaryProcessed: processedUserIds.has(teacher.user.id),
     }));
 
     return {

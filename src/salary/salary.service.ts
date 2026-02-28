@@ -63,7 +63,7 @@ export class SalaryService {
     return await this.prisma.salaryStructure.findUnique({ where: { id } });
   }
 
-  async isCurrentSalaryStructureExist(userId: string) {
+  async isCurrentSalaryMonthStructureExist(userId: string) {
     const now = new Date();
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
     const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);

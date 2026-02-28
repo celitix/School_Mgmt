@@ -197,6 +197,7 @@ export class StudentService {
             name: true,
             class: {
               select: {
+                id: true,
                 name: true,
               },
             },
