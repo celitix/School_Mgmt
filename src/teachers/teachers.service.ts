@@ -96,7 +96,7 @@ export class TeachersService {
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
     const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
-    const salaryPayments = await this.prisma.salaryStructure.findMany({
+    const salaryStructure = await this.prisma.salaryStructure.findMany({
       where: {
         userId: { in: userIds },
         effectiveFrom: {
@@ -112,14 +112,33 @@ export class TeachersService {
       },
     });
 
-    const processedUserIds = new Set(
-      salaryPayments?.map((payment) => payment.userId),
+    const existingSalary = await this.prisma.salaryPayment.findMany({
+      where: {
+        userId: { in: userIds },
+        month: now.getMonth() + 1,
+        year: now.getFullYear(),
+      },
+      select: {
+        userId: true,
+      },
+    });
+
+    const processedsalaryStructureUserIds = new Set(
+      salaryStructure?.map((payment) => payment.userId),
+    );
+    const processedexistingSalaryUserIds = new Set(
+      existingSalary?.map((payment) => payment.userId),
     );
 
     const formattedTeachers = teachers.map(({ sections, ...teacher }) => ({
       ...teacher,
       isAssigned: sections.length > 0,
-      isMonthlySalaryProcessed: processedUserIds.has(teacher.user.id),
+      isCurrentMonthSalaryExist: processedsalaryStructureUserIds.has(
+        teacher.user.id,
+      ),
+      isMonthlySalaryProcessed: processedexistingSalaryUserIds.has(
+        teacher.user.id,
+      ),
     }));
 
     return {
