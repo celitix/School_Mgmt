@@ -8,6 +8,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "VITE");
 
   return {
+    base: '/schl/frontend/',
     plugins: [react(), tailwindcss()],
     define: {
       "process.env": env,
