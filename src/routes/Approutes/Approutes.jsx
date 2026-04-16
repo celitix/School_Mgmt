@@ -15,7 +15,7 @@ import Dashboard from "@/dashboard/Dashboard";
 import AllTeachersList from "@/teachersManagement/allTeachersList/AllTeachersList";
 import CreateTeacter from "@/teachersManagement/createTeacher/CreateTeacter";
 import AllStudentsList from "@/studentsManagement/allStudentsList/AllStudentsList";
-import CreateStudent from "@/studentsManagement/createStudent/createStudent";
+import CreateStudent from "@/studentsManagement/createStudent/CreateStudent";
 import CreateSalary from "@/salaryManagement/createSalary/CreateSalary";
 import Salary from "@/salaryManagement/salary/Salary";
 import SubjectManagement from "@/subjectManagement/SubjectManagement";
