@@ -52,20 +52,47 @@ export const login = async (data) => {
 };
 
 // verifyOTP
+// export const verifyOTP = async (data) => {
+//   try {
+//     const response = await axios.post(`${apiUrl}/auth/verifyOtp`, data, {
+//       headers: { "Content-Type": "application/json" },
+//     });
+
+//     return {
+//       isSuccess: response.data.isSuccess,
+//       data: response.data.data,
+//       message: response.data.data?.message,
+//       status: response.status,
+//     };
+//   } catch (error) {
+//     return handleApiError(error);
+//   }
+// };
+
 export const verifyOTP = async (data) => {
   try {
     const response = await axios.post(`${apiUrl}/auth/verifyOtp`, data, {
       headers: { "Content-Type": "application/json" },
+      validateStatus: () => true, // 👈 important (so catch doesn't trigger)
     });
 
     return {
-      isSuccess: response.data.isSuccess,
-      data: response.data.data,
-      message: response.data.data?.message,
+      isSuccess: response.data?.isSuccess ?? false,
+      data: response.data?.data ?? null,
       status: response.status,
+      message:
+        response.data?.data?.message ||
+        response.data?.error?.message ||   // ✅ FIX
+        response.data?.message ||
+        "Something went wrong",
     };
   } catch (error) {
-    return handleApiError(error);
+    return {
+      isSuccess: false,
+      data: null,
+      status: 0,
+      message: "Network error. Please try again.",
+    };
   }
 };
 

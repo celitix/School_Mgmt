@@ -26,7 +26,7 @@ const Mainlayout = () => {
             <div className="flex flex-1 overflow-hidden">
                 <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} isMobile={isMobile} />
                 <div
-                    className={`flex-1 transition-all duration-300 overflow-auto p-4 bg-white rounded-tl-3xl shadow-inner popf
+                    className={`flex-1 transition-all duration-300 overflow-auto p-4 rounded-tl-3xl shadow-inner popf
                                    ${isMobile ? "ml-0" : sidebarOpen ? "ml-0" : "ml-0"}
                         `}
                 >

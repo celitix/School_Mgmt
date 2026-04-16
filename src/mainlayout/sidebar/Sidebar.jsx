@@ -3,10 +3,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
-// APIS 
+// APIS
 import { userLogout } from "@/apis/login/login";
 
-// ICONS 
+// ICONS
 import { FiChevronDown, FiChevronsRight } from "react-icons/fi";
 import { BiData } from "react-icons/bi";
 import {
@@ -20,31 +20,35 @@ import {
 } from "lucide-react";
 import { FaCircle } from "react-icons/fa";
 import { LuBuilding2 } from "react-icons/lu";
-
+import { LiaChalkboardTeacherSolid } from "react-icons/lia";
+import { PiStudentBold } from "react-icons/pi";
+import { useRoleContext } from "@/context/RoleContext";
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { role, setRole } = useRoleContext();
+
   const [openDropdown, setOpenDropdown] = useState(null);
   const handleLogout = async () => {
-    try {
-      const response = await userLogout();
+    // try {
+    // const response = await userLogout();
 
-      if (response?.status) {
-        toast.success(response?.message || "Logged out successfully!");
-      } else {
-        toast.error(response?.message || "Logout failed on server!");
-      }
-    } catch (error) {
-      console.error("Logout Error:", error);
-      toast.error("Something went wrong while logging out.");
-    } finally {
-      sessionStorage.clear("user");
-      sessionStorage.removeItem("token");
-      sessionStorage.removeItem("role");
-      setRole(null);
-      navigate("/login");
-    }
+    // if (response?.status) {
+    //   toast.success(response?.message || "Logged out successfully!");
+    // } else {
+    //   toast.error(response?.message || "Logout failed on server!");
+    // }
+    // } catch (error) {
+    //   console.error("Logout Error:", error);
+    //   toast.error("Something went wrong while logging out.");
+    // } finally {
+    sessionStorage.clear("user");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("role");
+    setRole(null);
+    navigate("/login");
+    // }
   };
 
   const menu = [
@@ -59,102 +63,90 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     },
     {
       id: "2",
-      name: "stock-management",
-      label: "Stock Management",
-      icon: Boxes,
+      name: "teacher-management ",
+      label: "Teacher Management",
+      icon: LiaChalkboardTeacherSolid,
       type: "dropdown",
-      subMenu: [
-        { label: "Request Material", path: "/requestmaterial" },
-        { label: "Requisition Report", path: "/requistionreport" },
-        { label: "Manage Inventory", path: "/inventory" },
-        { label: "Transfer Inventory", path: "/transferinventoryreport" },
-      ],
+      subMenu: [{ label: "Teachers Details", path: "/teachersdetails" }],
       roles: ["ADMIN", "SUPER_ADMIN"],
     },
     {
       id: "3",
-      name: "accounts",
-      label: "Accounts",
-      icon: FileSpreadsheet,
+      name: "student-management",
+      label: "Student Management",
+      icon: PiStudentBold,
       type: "dropdown",
-      subMenu: [
-        { label: "Invoice", path: "/invoice" },
-        { label: "GRN", path: "/managegrn" },
-      ],
+      subMenu: [{ label: "Students Details", path: "/studentsdetails" }],
       roles: ["ADMIN", "SUPER_ADMIN"],
     },
     {
       id: "4",
-      name: "projects",
-      label: "Projects",
+      name: "salary-management",
+      label: "Salary Management",
       icon: Building,
       type: "dropdown",
-      subMenu: [
-        { label: "Manage Projects", path: "/managesite" },
-      ],
+      subMenu: [{ label: "Salary", path: "/salary" }],
       roles: ["ADMIN", "SUPER_ADMIN"],
     },
     {
       id: "5",
-      label: "Company",
-      name: "admin",
-      icon: LuBuilding2,
+      name: "class-management",
+      label: "Class Management",
+      icon: Boxes,
       type: "dropdown",
       subMenu: [
-        { label: "Manage Company", path: "/managecompany" },
+        { label: "Manage Classes", path: "/manageclasses" },
+        { label: "Manage Subjects", path: "/manageclasssubject" },
+        { label: "Manage Time Table", path: "/managetimetable" },
       ],
       roles: ["ADMIN", "SUPER_ADMIN"],
     },
     {
       id: "6",
-      label: "User Management",
-      name: "user-management",
+      label: "Attendence",
+      name: "attendence-management",
       icon: Users,
       type: "dropdown",
       subMenu: [
-        { label: "Manage user", path: "/manageuser" },
-        { label: "Manage vendor", path: "/managevendor", subMenuRoles: ["SUPER_ADMIN"], },
+        { label: "Student Attendence", path: "/studentsAttendenceManagement" },
       ],
+      roles: ["ADMIN", "SUPER_ADMIN"],
+    },
+    {
+      id: "7",
+      label: "Academic Year",
+      name: "academicyear-management",
+      icon: Users,
+      type: "dropdown",
+      subMenu: [{ label: "Manage Academic Year", path: "/manageacademicyear" }],
       roles: ["ADMIN", "SUPER_ADMIN"],
     },
     // {
-    //   id: "6",
-    //   label: "Client Management",
-    //   name: "client-management",
-    //   icon: Users,
+    //   id: "7",
+    //   label: "Manage Bid",
+    //   name: "managebidadmin",
+    //   icon: BiData,
     //   type: "dropdown",
     //   subMenu: [
-    //     { label: "Manage Residential", path: "/generateresidentialunits" },
-    //     { label: "Manage Client", path: "/manageclient", subMenuRoles: ["SUPER_ADMIN"], },
+    //     { label: "Manage Bid", path: "/managebidall" },
+    //     { label: "Purchase Order", path: "/purchaseorder" },
     //   ],
     //   roles: ["ADMIN", "SUPER_ADMIN"],
     // },
-    {
-      id: "7",
-      label: "Manage Bid",
-      name: "managebidadmin",
-      icon: BiData,
-      type: "dropdown",
-      subMenu: [
-        { label: "Manage Bid", path: "/managebidall" },
-        { label: "Purchase Order", path: "/purchaseorder" },
-      ],
-      roles: ["ADMIN", "SUPER_ADMIN"],
-    },
-    {
-      id: "8",
-      name: "settings",
-      label: "Settings",
-      icon: Settings,
-      type: "dropdown",
-      subMenu: [
-        { label: "Manage Material", path: "/mainmaterial" },
-        { label: "Manage Units", path: "/manageunits" },
-        { label: "Notification", path: "/notification" },
-        { label: "Payment & HSN", path: "/settings" },
-      ],
-      roles: ["ADMIN", "SUPER_ADMIN"],
-    },
+    // {
+    //   id: "8",
+    //   name: "settings",
+    //   label: "Settings",
+    //   icon: Settings,
+    //   type: "dropdown",
+    //   subMenu: [
+    //     { label: "Manage Material", path: "/mainmaterial" },
+    //     { label: "Manage Units", path: "/manageunits" },
+    //     { label: "Notification", path: "/notification" },
+    //     { label: "Payment & HSN", path: "/settings" },
+    //   ],
+    //   roles: ["ADMIN", "SUPER_ADMIN"],
+    // },
     {
       id: "9",
       name: "logout",
@@ -165,7 +157,6 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
       roles: ["ADMIN", "SUPER_ADMIN"],
     },
   ];
-
 
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
@@ -235,14 +226,13 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                   <Link
                     to={item.path}
                     onClick={handleLinkClick}
-                    className={`relative flex w-full items-center rounded-md py-3 transition-all duration-200 ${isActive
-                      ? "bg-indigo-100 text-indigo-700"
-                      : "text-slate-500 hover:bg-slate-100"
-                      }`}
+                    className={`relative flex w-full items-center rounded-md py-3 transition-all duration-200 
+                      ${isActive ? "active" : "inActive hover-sidebar"}`}
                   >
                     <div
-                      className={`grid place-content-center text-lg shrink-0 transition-all duration-300 ${isOpen ? "w-10 ml-2.5" : "w-15"
-                        }`}
+                      className={`grid place-content-center text-lg shrink-0 transition-all duration-300 ${
+                        isOpen ? "w-10 ml-2.5" : "w-15"
+                      }`}
                     >
                       <Icon size={20} />
                     </div>
@@ -261,14 +251,14 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                 ) : (
                   <button
                     onClick={item.onClick}
-                    className={`relative flex w-full items-center rounded-md py-3 transition-all duration-200 ${isActive
-                      ? "bg-indigo-100 text-indigo-700"
-                      : "text-slate-500 hover:bg-slate-100"
-                      }`}
+                    className={`relative flex w-full items-center rounded-md py-3 transition-all duration-200 ${
+                      isActive ? "active" : "inActive hover-sidebar"
+                    }`}
                   >
                     <div
-                      className={`grid place-content-center text-lg shrink-0 transition-all duration-300 ${isOpen ? "w-10 ml-2.5" : "w-15"
-                        }`}
+                      className={`grid place-content-center text-lg shrink-0 transition-all duration-300 ${
+                        isOpen ? "w-10 ml-2.5" : "w-15"
+                      }`}
                     >
                       <Icon size={20} />
                     </div>
@@ -289,14 +279,14 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                 <>
                   <div
                     onClick={() => handleDropdownClick(index)}
-                    className={`relative flex w-full items-center rounded-md py-3 transition-all duration-200 ${isActive
-                      ? "bg-indigo-100 text-indigo-700"
-                      : "text-slate-500 hover:bg-slate-100"
-                      }`}
+                    className={`relative flex w-full items-center rounded-md py-3 transition-all duration-200 ${
+                      isActive ? "active" : "inActive hover-sidebar"
+                    }`}
                   >
                     <div
-                      className={`grid place-content-center text-lg shrink-0 transition-all duration-300 ${isOpen ? "w-10 ml-2.5" : "w-15"
-                        }`}
+                      className={`grid place-content-center text-lg shrink-0 transition-all duration-300 ${
+                        isOpen ? "w-10 ml-2.5" : "w-15"
+                      }`}
                     >
                       <Icon size={20} />
                     </div>
@@ -367,23 +357,25 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                               key={i}
                               to={sub.path}
                               onClick={() => handleLinkClick(index)}
-                              className={`flex items-center gap-2 rounded-md px-2 py-1.5 text-xs transition-all duration-200 ${isActiveRoute(sub.path)
-                                ? "bg-indigo-50 text-indigo-600 font-medium"
-                                : "text-slate-500 hover:bg-slate-100"
-                                }`}
+                              className={`flex items-center gap-2 rounded-md px-2 py-1.5 text-xs transition-all duration-200 ${
+                                isActiveRoute(sub.path)
+                                  ? "active font-medium"
+                                  : "inActive hover-sidebar"
+                              }`}
                             >
                               <span
-                                className={`w-1.5 h-1.5 rounded-full ml-4 ${isActiveRoute(sub.path)
-                                  ? "bg-indigo-600"
-                                  : "bg-slate-400"
-                                  }`}
+                                className={`w-1.5 h-1.5 rounded-full ml-4 ${
+                                  isActiveRoute(sub.path)
+                                    ? "active"
+                                    : "bg-slate-400"
+                                }`}
                               >
                                 {" "}
                                 <FaCircle
                                   size={6}
                                   className={
                                     isActiveRoute(sub.path)
-                                      ? "text-indigo-600"
+                                      ? "active"
                                       : "text-slate-400"
                                   }
                                 />

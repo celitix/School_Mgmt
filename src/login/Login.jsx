@@ -58,7 +58,7 @@ const Login = () => {
 
   // Handle OTP verification
   async function handleVerifyOtp() {
-    if (!otpDetails.otp || otpDetails.otp.length !== 5) {
+    if (!otpDetails.otp || otpDetails.otp.length !== 6) {
       return toast.error("Please enter a valid 5-digit OTP.");
     }
 
@@ -93,7 +93,7 @@ const Login = () => {
   }
 
   useEffect(() => {
-    if (otpDetails.otp.length === 5) {
+    if (otpDetails.otp.length === 6) {
       handleVerifyOtp()
     }
   }, [otpDetails.otp])
@@ -118,7 +118,7 @@ const Login = () => {
     setOtpDetails({ ...otpDetails, otp: otpString });
 
     // Move focus to next field if a digit is entered
-    if (value && index < 4) {
+    if (value && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
   };
@@ -222,7 +222,7 @@ const Login = () => {
             transition={{ delay: 0.2 }}
           >
             <div className="flex justify-center space-x-3">
-              {[...Array(5)].map((_, i) => (
+              {[...Array(6)].map((_, i) => (
                 <input
                   key={i}
                   ref={(el) => (inputRefs.current[i] = el)}
