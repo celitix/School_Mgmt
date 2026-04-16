@@ -5,7 +5,6 @@ import {
   Route,
   Outlet,
   Navigate,
-  BrowserRouter,
 } from "react-router-dom";
 
 // MainLayout
@@ -28,7 +27,7 @@ import Rough from "../../rough";
 
 const Approutes = () => {
   return (
-    <BrowserRouter basename="/schl/frontend">
+    // <BrowserRouter basename="/schl/frontend">
       <Routes>
         <Route path="/" element={<Mainlayout />}>
           <Route index element={<Dashboard />} />
@@ -52,7 +51,7 @@ const Approutes = () => {
           <Route path="/rough" element={<Rough />} />
         </Route>
       </Routes>
-    </BrowserRouter>
+    // </BrowserRouter>
   );
 };
 
