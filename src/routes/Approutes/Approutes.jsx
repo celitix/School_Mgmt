@@ -21,7 +21,7 @@ import Salary from "@/salaryManagement/salary/Salary";
 import SubjectManagement from "@/subjectManagement/SubjectManagement";
 import TimeTableManagement from "@/timetableManagement/TimeTableManagement";
 import ClassManagement from "@/classManagement/ClassManagement";
-import StudentsAttendenceManagement from "@/attendenceManagement/studentsAttendenceManagement";
+import StudentsAttendenceManagement from "@/attendenceManagement/StudentsAttendenceManagement";
 import AcademicYearManagement from "../../academicYearManagement/AcademicYearManagement";
 import Rough from "../../rough";
 

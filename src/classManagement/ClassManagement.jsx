@@ -54,7 +54,7 @@ const ManageClass = () => {
 
   const [formDetails, setFormDetails] = useState({
     className: "",
-    numOfSection: 2
+    numOfSection: ""
   })
   const [assignTeacher, setAssignTeacher] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -651,6 +651,7 @@ const ManageSection = () => {
       const res = await assignTeacherToClassSection(data)
     } catch (error) {
       console.error("error", error)
+      toast.error(error?.message)
     }
   }
 
