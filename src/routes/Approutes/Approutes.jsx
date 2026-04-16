@@ -5,6 +5,7 @@ import {
   Route,
   Outlet,
   Navigate,
+  BrowserRouter,
 } from "react-router-dom";
 
 // MainLayout
@@ -27,32 +28,31 @@ import Rough from "../../rough";
 
 const Approutes = () => {
   return (
-    <Routes>
-      <Route path="/" element={<Mainlayout />}>
-        <Route index element={<Dashboard />} />
-        <Route path="/teachersdetails" element={<AllTeachersList />} />
-        <Route path="/createteacter" element={<CreateTeacter />} />
-        <Route path="/studentsdetails" element={<AllStudentsList />} />
-        <Route path="/createStudent" element={<CreateStudent />} />
-        <Route path="/createsalary" element={<CreateSalary />} />
-        <Route path="/salary" element={<Salary />} />
-        <Route path="/manageclasses" element={<ClassManagement />} />
-        <Route path="/manageclasssubject" element={<SubjectManagement />} />
-        <Route path="/managetimetable" element={<TimeTableManagement />} />
-        <Route
-          path="/manageacademicyear"
-          element={<AcademicYearManagement />}
-        />
-        <Route
-          path="/studentsAttendenceManagement"
-          element={<StudentsAttendenceManagement />}
-        />
-        <Route
-          path="/rough"
-          element={<Rough/>}
-        />
-      </Route>
-    </Routes>
+    <BrowserRouter basename="/schl/frontend">
+      <Routes>
+        <Route path="/" element={<Mainlayout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="/teachersdetails" element={<AllTeachersList />} />
+          <Route path="/createteacter" element={<CreateTeacter />} />
+          <Route path="/studentsdetails" element={<AllStudentsList />} />
+          <Route path="/createStudent" element={<CreateStudent />} />
+          <Route path="/createsalary" element={<CreateSalary />} />
+          <Route path="/salary" element={<Salary />} />
+          <Route path="/manageclasses" element={<ClassManagement />} />
+          <Route path="/manageclasssubject" element={<SubjectManagement />} />
+          <Route path="/managetimetable" element={<TimeTableManagement />} />
+          <Route
+            path="/manageacademicyear"
+            element={<AcademicYearManagement />}
+          />
+          <Route
+            path="/studentsAttendenceManagement"
+            element={<StudentsAttendenceManagement />}
+          />
+          <Route path="/rough" element={<Rough />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 };
 
